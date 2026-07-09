@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -341,50 +343,107 @@ section { padding: 100px 56px; max-width: 1400px; margin: 0 auto; }
 .exp-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
 .exp-tag { font-size: 11px; color: var(--text3); background: var(--bg2); border-radius: 6px; padding: 2px 9px; font-family: 'DM Mono', monospace; }
 
-/* Projects grid */
-.projects-wrapper { padding: 100px 56px; }
-.projects-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+/* Projects carousel — Apple-style pinned horizontal scroll */
+.projects-intro { padding: 100px 56px 0; max-width: 1400px; margin: 0 auto; }
 
-.p-card {
+.carousel-pin-section {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+.carousel-track {
+  display: flex;
+  align-items: stretch;
+  gap: 28px;
+  padding: 0 8vw;
+  will-change: transform;
+}
+.car-card {
+  flex: 0 0 auto;
+  width: min(560px, 74vw);
   background: var(--white);
   border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;
-  cursor: none;
-  transition: box-shadow 0.35s, transform 0.35s, border-color 0.25s;
-  position: relative;
   text-decoration: none;
   color: inherit;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  cursor: none;
+  transition: border-color 0.25s, box-shadow 0.25s;
+  position: relative;
 }
-.p-card:hover {
-  box-shadow: 0 16px 56px rgba(26,24,20,0.08);
-  transform: translateY(-4px);
-  border-color: var(--line2);
-}
-.p-card.span-7  { grid-column: span 7; }
-.p-card.span-5  { grid-column: span 5; }
-.p-card.span-6  { grid-column: span 6; }
-.p-card.span-8  { grid-column: span 8; }
-.p-card.span-12 { grid-column: span 12; display: grid; grid-template-columns: 1.1fr 0.9fr; }
+.car-card:hover { border-color: var(--line2); box-shadow: 0 20px 60px rgba(26,24,20,0.1); }
+.car-card.static { cursor: default; }
 
-.p-preview {
-  aspect-ratio: 4/3;
+.car-preview {
+  aspect-ratio: 16/10;
   position: relative;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
-.p-card.span-12 .p-preview { aspect-ratio: auto; min-height: 280px; }
+.car-card .mock-window { width: 78%; max-width: 380px; }
+.car-card:hover .mock-window { transform: scale(1.03) translateY(-3px); }
 
-.prev-library  { background: linear-gradient(145deg,#e8f0ff,#c7d8ff,#a8c0fd); }
-.prev-data     { background: linear-gradient(145deg,#e0f2fe,#bae6fd,#7dd3fc); }
-.prev-coredesk { background: linear-gradient(145deg,#fef3c7,#fde68a,#fbbf24); }
-.prev-inventory{ background: linear-gradient(145deg,#dcfce7,#bbf7d0,#86efac); }
-.prev-lab      { background: linear-gradient(145deg,#fce7f3,#fbcfe8,#f9a8d4); }
-.prev-invoice  { background: linear-gradient(145deg,#f3e8ff,#e9d5ff,#d8b4fe); }
-.prev-vantyx   { background: linear-gradient(145deg,#fff7ed,#fed7aa,#fdba74); }
+.car-info { padding: 26px 30px 30px; flex: 1; display: flex; flex-direction: column; }
+.car-title { font-size: 21px; font-weight: 500; letter-spacing: -0.02em; margin-bottom: 8px; }
+.car-desc { font-size: 13.5px; font-weight: 300; color: var(--text2); line-height: 1.7; margin-bottom: 18px; flex: 1; }
+.car-techs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 4px; }
+
+.car-arrow {
+  position: absolute; top: 18px; right: 18px;
+  width: 32px; height: 32px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transform: scale(0.8);
+  transition: opacity 0.25s, transform 0.25s;
+}
+.car-card:hover .car-arrow { opacity: 1; transform: scale(1); }
+.car-arrow svg { width: 13px; height: 13px; stroke: var(--text); fill: none; stroke-width: 2; }
+
+.carousel-progress-wrap {
+  position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 14px;
+}
+.carousel-progress-track { width: 220px; height: 2px; background: var(--line2); border-radius: 2px; overflow: hidden; }
+.carousel-progress-fill { width: 0%; height: 100%; background: var(--text); }
+.carousel-progress-label { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3); letter-spacing: 0.1em; white-space: nowrap; }
+
+.carousel-hint-mobile { display: none; }
+
+@media (max-width: 900px) {
+  .carousel-pin-section { height: auto; }
+  .carousel-track {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding: 8px 24px 28px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .carousel-track::-webkit-scrollbar { display: none; }
+  .car-card { width: 84vw; scroll-snap-align: center; }
+  .carousel-progress-wrap { display: none; }
+  .carousel-hint-mobile {
+    display: block; text-align: center; padding: 0 24px 8px;
+    font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text3);
+    letter-spacing: 0.1em; text-transform: uppercase;
+  }
+}
+
+.prev-library   { background: linear-gradient(145deg,#e8f0ff,#c7d8ff,#a8c0fd); }
+.prev-data      { background: linear-gradient(145deg,#e0f2fe,#bae6fd,#7dd3fc); }
+.prev-aegis     { background: linear-gradient(145deg,#fef3c7,#fde68a,#fbbf24); }
+.prev-assetpulse{ background: linear-gradient(145deg,#dcfce7,#bbf7d0,#86efac); }
+.prev-medinova  { background: linear-gradient(145deg,#fce7f3,#fbcfe8,#f9a8d4); }
+.prev-pagoflow  { background: linear-gradient(145deg,#f3e8ff,#e9d5ff,#d8b4fe); }
+.prev-deskflow  { background: linear-gradient(145deg,#dbeafe,#bfdbfe,#93c5fd); }
+.prev-balance   { background: linear-gradient(145deg,#e8f0ea,#cfe3d5,#a8cdb4); }
 
 .mock-window {
   width: 76%; max-width: 340px;
@@ -396,7 +455,6 @@ section { padding: 100px 56px; max-width: 1400px; margin: 0 auto; }
   box-shadow: 0 8px 32px rgba(0,0,0,0.1);
   transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
 }
-.p-card:hover .mock-window { transform: scale(1.04) rotate(-0.5deg) translateY(-4px); }
 .mock-title-bar {
   height: 32px;
   background: rgba(255,255,255,0.8);
@@ -414,9 +472,6 @@ section { padding: 100px 56px; max-width: 1400px; margin: 0 auto; }
 .mock-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
 .mock-block-sm { height: 32px; border-radius: 6px; background: rgba(0,0,0,0.05); }
 
-.p-info { padding: 24px 28px 28px; }
-.p-card.span-12 .p-info { padding: 36px 40px; display: flex; flex-direction: column; justify-content: center; }
-
 .p-badge {
   display: inline-flex; align-items: center; gap: 5px;
   font-family: 'DM Mono', monospace;
@@ -431,26 +486,7 @@ section { padding: 100px 56px; max-width: 1400px; margin: 0 auto; }
 .badge-web   { color:#5b21b6; border-color:rgba(91,33,182,0.25);  background:rgba(91,33,182,0.05); }
 .badge-live  { color:#166534; border-color:rgba(22,101,52,0.25);  background:rgba(22,101,52,0.06); }
 .live-dot { width:6px; height:6px; border-radius:50%; background:#22c55e; animation:pulse 2s infinite; }
-
-.p-title { font-size: 20px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 8px; }
-.p-card.span-12 .p-title { font-size: 26px; margin-bottom: 12px; }
-.p-desc { font-size: 13px; font-weight: 300; color: var(--text2); line-height: 1.7; margin-bottom: 18px; }
-.p-card.span-12 .p-desc { font-size: 14px; }
-.p-techs { display: flex; flex-wrap: wrap; gap: 6px; }
 .p-tech { font-family:'DM Mono',monospace; font-size:10px; color:var(--text3); background:var(--bg2); border-radius:5px; padding:3px 9px; }
-
-.p-arrow {
-  position: absolute; top: 18px; right: 18px;
-  width: 32px; height: 32px;
-  background: var(--white);
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  opacity: 0; transform: scale(0.8);
-  transition: opacity 0.25s, transform 0.25s;
-}
-.p-card:hover .p-arrow { opacity: 1; transform: scale(1); }
-.p-arrow svg { width: 13px; height: 13px; stroke: var(--text); fill: none; stroke-width: 2; }
 
 /* Contact */
 .contact-inner {
@@ -518,12 +554,9 @@ footer p { font-family:'DM Mono',monospace; font-size:11px; color:var(--text3); 
   .stats-row { grid-template-columns:1fr; }
   .stat-item { padding:28px 24px; }
   section { padding:72px 24px; }
-  .projects-wrapper { padding:72px 24px; }
+  .projects-intro { padding:72px 24px 0; }
   .about-layout { grid-template-columns:1fr; gap:40px; }
   .exp-item { grid-template-columns:1fr; gap:4px; }
-  .p-card.span-7,.p-card.span-5,.p-card.span-6,.p-card.span-8 { grid-column:span 12; }
-  .p-card.span-12 { grid-template-columns:1fr; }
-  .p-card.span-12 .p-preview { min-height:200px; }
   .contact-inner { grid-template-columns:1fr; padding:48px 32px; gap:40px; }
   footer { flex-direction:column; gap:8px; text-align:center; padding:24px; }
   .scroll-hint { display:none; }
@@ -560,7 +593,7 @@ footer p { font-family:'DM Mono',monospace; font-size:11px; color:var(--text3); 
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
           View Projects
         </a>
-        <a href="CV_Jared_Rojas.pdf" download class="btn-outline">
+        <a href="CV_Jared_Rojas_Barron.pdf" download class="btn-outline">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           Download CV
         </a>
@@ -590,7 +623,7 @@ footer p { font-family:'DM Mono',monospace; font-size:11px; color:var(--text3); 
 <!-- STATS -->
 <div class="stats-row">
   <div class="stat-item reveal"><span class="stat-number">2+</span><span class="stat-label">Years in IT Operations</span></div>
-  <div class="stat-item reveal d1"><span class="stat-number">7</span><span class="stat-label">Software projects deployed</span></div>
+  <div class="stat-item reveal d1"><span class="stat-number">8</span><span class="stat-label">Software projects deployed</span></div>
   <div class="stat-item reveal d2"><span class="stat-number">4+</span><span class="stat-label">Years freelance development</span></div>
 </div>
 
@@ -653,48 +686,51 @@ footer p { font-family:'DM Mono',monospace; font-size:11px; color:var(--text3); 
 <hr class="divider-full">
 
 <!-- PROJECTS -->
-<div class="projects-wrapper" id="projects">
+<div class="projects-intro" id="projects">
   <p class="section-eyebrow reveal">Projects</p>
   <h2 class="section-title reveal d1">Selected <em>work.</em></h2>
-  <div class="projects-grid">
+</div>
 
-    <!-- Mi Biblioteca CUCEA -->
-    <a href="#" class="p-card span-7 reveal d1">
-      <div class="p-preview prev-library">
+<div class="carousel-pin-section">
+  <div class="carousel-track" id="carouselTrack">
+
+    <!-- DeskFlow -->
+    <a href="deskflow/index.html" target="_blank" class="car-card">
+      <div class="car-preview prev-deskflow">
         <div class="mock-window">
           <div class="mock-title-bar"><div class="m-dot" style="background:#ff5f57"></div><div class="m-dot" style="background:#ffbd2e"></div><div class="m-dot" style="background:#28ca41"></div></div>
-          <div class="mock-body"><div class="mock-row accent med"></div><div class="mock-row short"></div><div class="mock-block"></div><div class="mock-grid2"><div class="mock-block-sm"></div><div class="mock-block-sm"></div></div></div>
+          <div class="mock-body"><div class="mock-row accent" style="width:60%"></div><div class="mock-grid2"><div class="mock-block-sm"></div><div class="mock-block-sm"></div><div class="mock-block-sm"></div><div class="mock-block-sm"></div></div></div>
         </div>
       </div>
-      <div class="p-info">
-        <span class="p-badge badge-ux">UX / Design</span>
-        <h3 class="p-title">Mi Biblioteca CUCEA</h3>
-        <p class="p-desc">Full UX redesign for the CUCEA university library. 10 interactive screens, Figma prototype, sitemap, user profile, color palette, and typography system.</p>
-        <div class="p-techs"><span class="p-tech">Figma</span><span class="p-tech">UX Research</span><span class="p-tech">Prototyping</span><span class="p-tech">IA</span></div>
+      <div class="car-info">
+        <span class="p-badge badge-it">Web App</span>
+        <h3 class="car-title">DeskFlow</h3>
+        <p class="car-desc">Multi-tenant desk and conference room booking system for a shared office. Hourly reservations, drag-select room timeline, per-company color coding, and an admin dashboard for occupancy reporting.</p>
+        <div class="car-techs"><span class="p-tech">HTML/JS</span><span class="p-tech">LocalStorage</span><span class="p-tech">GitHub Pages</span></div>
       </div>
-      <div class="p-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+      <div class="car-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
     </a>
 
-    <!-- Vantyx -->
-    <a href="vantyx/index.html" target="_blank" class="p-card span-5 reveal d2">
-      <div class="p-preview prev-vantyx">
+    <!-- AssetPulse -->
+    <a href="assetpulse/index.html" target="_blank" class="car-card">
+      <div class="car-preview prev-assetpulse">
         <div class="mock-window">
           <div class="mock-title-bar"><div class="m-dot" style="background:#ff5f57"></div><div class="m-dot" style="background:#ffbd2e"></div><div class="m-dot" style="background:#28ca41"></div></div>
-          <div class="mock-body"><div class="mock-row accent" style="width:80%"></div><div class="mock-row short"></div><div class="mock-block" style="height:28px;margin-top:12px;border-radius:100px;width:110px"></div></div>
+          <div class="mock-body"><div class="mock-row accent" style="background:rgba(0,0,0,0.15);width:60%"></div><div class="mock-grid2" style="margin-top:10px"><div class="mock-block-sm"></div><div class="mock-block-sm"></div><div class="mock-block-sm"></div><div class="mock-block-sm"></div></div></div>
         </div>
       </div>
-      <div class="p-info">
-        <span class="p-badge badge-web">Web / Branding</span>
-        <h3 class="p-title">Vantyx</h3>
-        <p class="p-desc">Informational website for IT services company. Showcases services, team, and contact flow for enterprise clients.</p>
-        <div class="p-techs"><span class="p-tech">HTML/CSS/JS</span><span class="p-tech">GitHub Pages</span></div>
+      <div class="car-info">
+        <span class="p-badge badge-it">IT / Dashboard</span>
+        <h3 class="car-title">AssetPulse</h3>
+        <p class="car-desc">Centralized IT asset management platform — register laptops, monitors, and peripherals, assign equipment to employees, generate QR tags, and give managers a live reporting dashboard.</p>
+        <div class="car-techs"><span class="p-tech">HTML/JS</span><span class="p-tech">LocalStorage</span><span class="p-tech">QR / Charts</span></div>
       </div>
-      <div class="p-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+      <div class="car-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
     </a>
 
-    <!-- CoreDesk — span 12 horizontal -->
-    <a href="https://coredesk.streamlit.app" target="_blank" class="p-card span-12 reveal d1">
-      <div class="p-preview prev-coredesk">
+    <!-- Aegis AI -->
+    <a href="aegis-ai/index.html" target="_blank" class="car-card">
+      <div class="car-preview prev-aegis">
         <div class="mock-window" style="max-width:280px">
           <div class="mock-title-bar"><div class="m-dot" style="background:#ff5f57"></div><div class="m-dot" style="background:#ffbd2e"></div><div class="m-dot" style="background:#28ca41"></div></div>
           <div class="mock-body">
@@ -704,69 +740,85 @@ footer p { font-family:'DM Mono',monospace; font-size:11px; color:var(--text3); 
           </div>
         </div>
       </div>
-      <div class="p-info">
-        <span class="p-badge badge-live"><div class="live-dot"></div>Live on Streamlit</span>
-        <h3 class="p-title">CoreDesk — AI Ticket Platform</h3>
-        <p class="p-desc">Enterprise helpdesk platform where authenticated users chat with a Gemini AI trained for IT support. Resolves issues autonomously and escalates unresolved tickets to human agents. Built with Python and Streamlit, deployed and in active use.</p>
-        <div class="p-techs"><span class="p-tech">Python</span><span class="p-tech">Streamlit</span><span class="p-tech">Gemini API</span><span class="p-tech">Auth</span><span class="p-tech">AI/ML</span></div>
+      <div class="car-info">
+        <span class="p-badge badge-sys">AI / Support</span>
+        <h3 class="car-title">Aegis AI</h3>
+        <p class="car-desc">AI-powered IT helpdesk. Users chat about their issue, a hybrid keyword + AI classifier scores priority and decides whether to resolve by chat, attempt remote fixes first, or escalate to a technician.</p>
+        <div class="car-techs"><span class="p-tech">Python</span><span class="p-tech">Streamlit</span><span class="p-tech">Gemini API</span></div>
       </div>
-      <div class="p-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+      <div class="car-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
     </a>
 
-    <!-- Inventario IT -->
-    <a href="inventario/index.html" target="_blank" class="p-card span-6 reveal d2">
-      <div class="p-preview prev-inventory">
-        <div class="mock-window">
-          <div class="mock-title-bar"><div class="m-dot" style="background:#ff5f57"></div><div class="m-dot" style="background:#ffbd2e"></div><div class="m-dot" style="background:#28ca41"></div></div>
-          <div class="mock-body"><div class="mock-row accent" style="background:rgba(0,0,0,0.15);width:60%"></div><div class="mock-grid2" style="margin-top:10px"><div class="mock-block-sm"></div><div class="mock-block-sm"></div><div class="mock-block-sm"></div><div class="mock-block-sm"></div></div></div>
-        </div>
-      </div>
-      <div class="p-info">
-        <span class="p-badge badge-it">IT / Dashboard</span>
-        <h3 class="p-title">IT Inventory System</h3>
-        <p class="p-desc">Centralized platform to register laptops, monitors, accessories, and users. Dashboard for IT managers with equipment availability, weekly assignments, and usage charts.</p>
-        <div class="p-techs"><span class="p-tech">HTML/JS</span><span class="p-tech">LocalStorage</span><span class="p-tech">Charts</span><span class="p-tech">QR</span></div>
-      </div>
-      <div class="p-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
-    </a>
-
-    <!-- Laboratorio -->
-    <a href="laboratorio/index.html" target="_blank" class="p-card span-6 reveal d3">
-      <div class="p-preview prev-lab">
-        <div class="mock-window">
-          <div class="mock-title-bar"><div class="m-dot" style="background:#ff5f57"></div><div class="m-dot" style="background:#ffbd2e"></div><div class="m-dot" style="background:#28ca41"></div></div>
-          <div class="mock-body"><div class="mock-row accent" style="background:rgba(0,0,0,0.13);width:70%"></div><div class="mock-row short"></div><div class="mock-block"></div></div>
-        </div>
-      </div>
-      <div class="p-info">
-        <span class="p-badge badge-sys">Health / Records</span>
-        <h3 class="p-title">Medinova — Clinical Lab</h3>
-        <p class="p-desc">Web platform for clinical labs. Patient history, daily visit logging, study registration, automatic price calculation, and patient record editing.</p>
-        <div class="p-techs"><span class="p-tech">HTML/JS</span><span class="p-tech">LocalStorage</span><span class="p-tech">XLSX Export</span></div>
-      </div>
-      <div class="p-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
-    </a>
-
-    <!-- Facturas -->
-    <a href="facturas/index.html" target="_blank" class="p-card span-5 reveal d2">
-      <div class="p-preview prev-invoice">
+    <!-- PagoFlow -->
+    <a href="pagoflow/index.html" target="_blank" class="car-card">
+      <div class="car-preview prev-pagoflow">
         <div class="mock-window">
           <div class="mock-title-bar"><div class="m-dot" style="background:#ff5f57"></div><div class="m-dot" style="background:#ffbd2e"></div><div class="m-dot" style="background:#28ca41"></div></div>
           <div class="mock-body"><div class="mock-row accent" style="background:rgba(91,33,182,0.2);width:75%"></div><div class="mock-row"></div><div class="mock-block" style="height:36px"></div><div class="mock-block" style="height:24px;margin-top:6px"></div></div>
         </div>
       </div>
-      <div class="p-info">
+      <div class="car-info">
         <span class="p-badge badge-web">Finance / Accounting</span>
-        <h3 class="p-title">Invoice & Payment Tracker</h3>
-        <p class="p-desc">Accounting platform to create invoices, manage vehicle insurance, and log construction-project payment flows with bank filtering and Excel export.</p>
-        <div class="p-techs"><span class="p-tech">HTML/JS</span><span class="p-tech">LocalStorage</span><span class="p-tech">XLSX Export</span></div>
+        <h3 class="car-title">PagoFlow</h3>
+        <p class="car-desc">Accounting platform for a construction company — weekly payment logging by project, automatic invoice-eligibility routing by bank, FIEL and vehicle-insurance expiration alerts, and Excel export.</p>
+        <div class="car-techs"><span class="p-tech">HTML/JS</span><span class="p-tech">LocalStorage</span><span class="p-tech">XLSX Export</span></div>
       </div>
-      <div class="p-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+      <div class="car-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
     </a>
 
+    <!-- MediNova+ -->
+    <a href="medinova/index.html" target="_blank" class="car-card">
+      <div class="car-preview prev-medinova">
+        <div class="mock-window">
+          <div class="mock-title-bar"><div class="m-dot" style="background:#ff5f57"></div><div class="m-dot" style="background:#ffbd2e"></div><div class="m-dot" style="background:#28ca41"></div></div>
+          <div class="mock-body"><div class="mock-row accent" style="background:rgba(0,0,0,0.13);width:70%"></div><div class="mock-row short"></div><div class="mock-block"></div></div>
+        </div>
+      </div>
+      <div class="car-info">
+        <span class="p-badge badge-sys">Health / Records</span>
+        <h3 class="car-title">MediNova+</h3>
+        <p class="car-desc">Patient management system for a clinical lab. Daily visit logging, a 67-study price catalog with smart abbreviation matching, patient history across visits, and a read-only manager report view.</p>
+        <div class="car-techs"><span class="p-tech">HTML/JS</span><span class="p-tech">LocalStorage</span><span class="p-tech">XLSX Export</span></div>
+      </div>
+      <div class="car-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+    </a>
+
+    <!-- Balance+ -->
+    <a href="balance/index.html" target="_blank" class="car-card">
+      <div class="car-preview prev-balance">
+        <div class="mock-window">
+          <div class="mock-title-bar"><div class="m-dot" style="background:#ff5f57"></div><div class="m-dot" style="background:#ffbd2e"></div><div class="m-dot" style="background:#28ca41"></div></div>
+          <div class="mock-body"><div class="mock-row accent" style="width:50%"></div><div class="mock-grid2" style="margin-top:10px"><div class="mock-block-sm"></div><div class="mock-block-sm"></div></div><div class="mock-block" style="height:28px;margin-top:8px"></div></div>
+        </div>
+      </div>
+      <div class="car-info">
+        <span class="p-badge badge-web">Personal Finance</span>
+        <h3 class="car-title">Balance+</h3>
+        <p class="car-desc">Shared household finance tracker for a couple. Split income and fixed bills, variable spending by category with budget bars, debt payoff progress with amortization projections, and shared savings goals.</p>
+        <div class="car-techs"><span class="p-tech">HTML/JS</span><span class="p-tech">Chart.js</span><span class="p-tech">LocalStorage</span></div>
+      </div>
+      <div class="car-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+    </a>
+
+    <!-- Mi Biblioteca CUCEA -->
+    <div class="car-card static">
+      <div class="car-preview prev-library">
+        <div class="mock-window">
+          <div class="mock-title-bar"><div class="m-dot" style="background:#ff5f57"></div><div class="m-dot" style="background:#ffbd2e"></div><div class="m-dot" style="background:#28ca41"></div></div>
+          <div class="mock-body"><div class="mock-row accent med"></div><div class="mock-row short"></div><div class="mock-block"></div><div class="mock-grid2"><div class="mock-block-sm"></div><div class="mock-block-sm"></div></div></div>
+        </div>
+      </div>
+      <div class="car-info">
+        <span class="p-badge badge-ux">UX / Design</span>
+        <h3 class="car-title">Mi Biblioteca CUCEA</h3>
+        <p class="car-desc">Full UX redesign for the CUCEA university library. 10 interactive screens, Figma prototype, sitemap, user profile, color palette, and typography system.</p>
+        <div class="car-techs"><span class="p-tech">Figma</span><span class="p-tech">UX Research</span><span class="p-tech">Prototyping</span></div>
+      </div>
+    </div>
+
     <!-- Data Warehouse -->
-    <a href="#" class="p-card span-7 reveal d3">
-      <div class="p-preview prev-data">
+    <div class="car-card static">
+      <div class="car-preview prev-data">
         <div class="mock-window">
           <div class="mock-title-bar"><div class="m-dot" style="background:#ff5f57"></div><div class="m-dot" style="background:#ffbd2e"></div><div class="m-dot" style="background:#28ca41"></div></div>
           <div class="mock-body">
@@ -781,17 +833,23 @@ footer p { font-family:'DM Mono',monospace; font-size:11px; color:var(--text3); 
           </div>
         </div>
       </div>
-      <div class="p-info">
+      <div class="car-info">
         <span class="p-badge badge-data">Data / BI</span>
-        <h3 class="p-title">Data Warehouse — Tech Store</h3>
-        <p class="p-desc">Data Warehouse for a technology retail store. Relational model in Microsoft Access integrated with Power BI dashboards for 2024 sales analysis.</p>
-        <div class="p-techs"><span class="p-tech">MS Access</span><span class="p-tech">Power BI</span><span class="p-tech">Data Modeling</span><span class="p-tech">DAX</span></div>
+        <h3 class="car-title">Data Warehouse — Tech Store</h3>
+        <p class="car-desc">Data Warehouse for a technology retail store. Relational model in Microsoft Access integrated with Power BI dashboards for 2024 sales analysis.</p>
+        <div class="car-techs"><span class="p-tech">MS Access</span><span class="p-tech">Power BI</span><span class="p-tech">DAX</span></div>
       </div>
-      <div class="p-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
-    </a>
+    </div>
 
   </div>
+
+  <div class="carousel-progress-wrap">
+    <span class="carousel-progress-label">01</span>
+    <div class="carousel-progress-track"><div class="carousel-progress-fill" id="carouselProgressFill"></div></div>
+    <span class="carousel-progress-label" id="carouselTotalLabel">08</span>
+  </div>
 </div>
+<p class="carousel-hint-mobile">Swipe to explore →</p>
 
 <hr class="divider-full">
 
@@ -816,7 +874,7 @@ footer p { font-family:'DM Mono',monospace; font-size:11px; color:var(--text3); 
         <div class="contact-icon"><svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg></div>
         <div><div class="contact-label">GitHub</div><div class="contact-value">JaredRojasB</div></div>
       </a>
-      <a href="CV_Jared_Rojas.pdf" download class="contact-item">
+      <a href="CV_Jared_Rojas_Barron.pdf" download class="contact-item">
         <div class="contact-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
         <div><div class="contact-label">Curriculum Vitae</div><div class="contact-value">Download CV — PDF</div></div>
       </a>
@@ -852,6 +910,63 @@ const io = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
 }, { threshold: 0.1, rootMargin: '0px 0px -48px 0px' });
 document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+// ── Projects carousel — pinned horizontal scroll (desktop), native swipe (mobile) ──
+if (window.gsap && window.ScrollTrigger) {
+  gsap.registerPlugin(ScrollTrigger);
+
+  const track = document.getElementById('carouselTrack');
+  const pinSection = document.querySelector('.carousel-pin-section');
+  const cards = gsap.utils.toArray('.car-card');
+  const progressFill = document.getElementById('carouselProgressFill');
+  const progressLabel = document.querySelector('.carousel-progress-label');
+  document.getElementById('carouselTotalLabel').textContent = String(cards.length).padStart(2, '0');
+
+  let mm = gsap.matchMedia();
+
+  mm.add('(min-width: 901px)', () => {
+    const getMaxScroll = () => Math.max(0, track.scrollWidth - window.innerWidth);
+
+    const tween = gsap.to(track, {
+      x: () => -getMaxScroll(),
+      ease: 'none',
+      scrollTrigger: {
+        trigger: pinSection,
+        start: 'top top',
+        end: () => '+=' + getMaxScroll(),
+        scrub: 0.7,
+        pin: true,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+        onUpdate: self => {
+          progressFill.style.width = (self.progress * 100).toFixed(1) + '%';
+          const activeIdx = Math.min(cards.length - 1, Math.round(self.progress * (cards.length - 1)));
+          progressLabel.textContent = String(activeIdx + 1).padStart(2, '0');
+        }
+      }
+    });
+
+    cards.forEach(card => {
+      gsap.fromTo(card, { scale: 0.94, opacity: 0.5 }, {
+        scale: 1, opacity: 1, ease: 'none',
+        scrollTrigger: {
+          trigger: card,
+          containerAnimation: tween,
+          start: 'left 88%',
+          end: 'left 45%',
+          scrub: true
+        }
+      });
+    });
+
+    return () => { gsap.set(track, { clearProps: 'transform' }); };
+  });
+
+  mm.add('(max-width: 900px)', () => {
+    gsap.set(track, { x: 0 });
+    gsap.set(cards, { scale: 1, opacity: 1 });
+  });
+}
 </script>
 </body>
 </html>
