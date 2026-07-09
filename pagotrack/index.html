@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PagoTrack Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root {
+  --bg:#F7F4EF;--surface:#FDFCFA;--surface2:#F0EDE7;--surface3:#E6E0D6;
+  --border:#DDD8CE;--border2:#C8C0B0;
+  --text:#1A1714;--text2:#6A6257;--text3:#9E9488;
+  --green:#1B6B3A;--green-l:#E6F2EB;--green-t:#0F4224;
+  --amber:#92600A;--amber-l:#FEF3DC;
+  --red:#8C2020;--red-l:#FDEAEA;
+  --blue:#1B4080;--blue-l:#E8EFFE;
+  --shadow:0 1px 4px rgba(0,0,0,.07),0 6px 16px rgba(0,0,0,.05);
+  --r:10px;--rl:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px}
+
+/* ── Topbar ── */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;position:sticky;top:0;z-index:200}
+.brand{display:flex;align-items:center;gap:11px}
+.brand-mark{width:36px;height:36px;background:var(--green);border-radius:10px;display:flex;align-items:center;justify-content:center}
+.brand-mark svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.brand-name{font-family:'Fraunces',serif;font-size:20px;letter-spacing:-.03em;color:var(--text)}
+.brand-tag{font-size:11px;color:var(--text3);margin-top:-2px}
+.topbar-alerts{display:flex;gap:8px;align-items:center}
+.alert-pill{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:500;cursor:default;border:1px solid transparent}
+.alert-pill.yellow{background:var(--amber-l);color:var(--amber);border-color:#E8C87A}
+.alert-pill.red{background:var(--red-l);color:var(--red);border-color:#E8A0A0}
+.alert-pill svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
+
+/* ── Nav tabs ── */
+.nav{background:var(--surface);border-bottom:1px solid var(--border);display:flex;padding:0 2rem;gap:0}
+.nav-tab{padding:12px 20px;font-size:13px;font-weight:400;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;display:flex;align-items:center;gap:7px;white-space:nowrap;background:none;border-top:none;border-left:none;border-right:none;font-family:'DM Sans',sans-serif}
+.nav-tab svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav-tab:hover{color:var(--text2)}
+.nav-tab.active{color:var(--green);border-bottom-color:var(--green);font-weight:500}
+.nav-badge{background:var(--red-l);color:var(--red);font-size:10px;padding:1px 6px;border-radius:10px;font-weight:600}
+
+/* ── Layout ── */
+.main{max-width:1200px;margin:0 auto;padding:2rem 1.5rem 5rem}
+.page{display:none}.page.active{display:block}
+
+/* ── Cards ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);box-shadow:var(--shadow);overflow:hidden;margin-bottom:1.5rem}
+.card-head{padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.08em}
+.card-body{padding:1.5rem}
+.card-foot{padding:11px 1.5rem;border-top:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;justify-content:space-between}
+
+/* ── Stats grid ── */
+.stats{display:grid;gap:12px;margin-bottom:1.5rem}
+.stats-4{grid-template-columns:repeat(4,1fr)}
+.stats-3{grid-template-columns:repeat(3,1fr)}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:1.1rem 1.3rem;box-shadow:var(--shadow)}
+.stat-lbl{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px}
+.stat-val{font-family:'Fraunces',serif;font-size:28px;letter-spacing:-.03em}
+.stat-val.g{color:var(--green)}
+
+/* ── Form grid ── */
+.fgrid{display:grid;gap:14px;padding:1.5rem}
+.fg-3{grid-template-columns:repeat(3,1fr)}
+.fg-2{grid-template-columns:repeat(2,1fr)}
+.fgroup{display:flex;flex-direction:column;gap:5px}
+.fgroup.span2{grid-column:span 2}
+.fgroup.span3{grid-column:span 3}
+label{font-size:12px;font-weight:500;color:var(--text2)}
+input,select,textarea{border:1px solid var(--border2);border-radius:var(--r);padding:9px 13px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);background:var(--bg);outline:none;width:100%;transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(27,107,58,.1)}
+input::placeholder,textarea::placeholder{color:var(--text3)}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239E9488' stroke-width='2' stroke-linecap='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+.ferr{font-size:12px;color:var(--red);min-height:16px}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:var(--r);font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;transition:all .15s}
+.btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.btn-green{background:var(--green);color:#fff;box-shadow:0 2px 6px rgba(27,107,58,.2)}
+.btn-green:hover{opacity:.88}
+.btn-green:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
+.btn-outline{background:var(--surface);color:var(--text);border:1px solid var(--border2)}
+.btn-outline:hover{background:var(--surface2)}
+.btn-ghost{background:none;color:var(--text2);border:1px dashed var(--border2)}
+.btn-ghost:hover{background:var(--surface);border-color:var(--green);color:var(--green)}
+.btn-del{background:none;border:none;color:var(--text3);cursor:pointer;padding:5px 7px;border-radius:6px;font-size:17px;line-height:1;transition:background .1s,color .1s}
+.btn-del:hover{background:var(--red-l);color:var(--red)}
+
+/* ── Table ── */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+thead th{background:var(--surface2);padding:9px 14px;text-align:left;font-size:11px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;border-bottom:1px solid var(--border);white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--green-l)}
+td{padding:10px 14px;vertical-align:middle}
+td.cen{text-align:center}
+td.mono{font-family:'Fraunces',serif;font-size:15px;color:var(--green)}
+
+/* ── Badges ── */
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500}
+.b-green{background:var(--green-l);color:var(--green-t)}
+.b-amber{background:var(--amber-l);color:var(--amber)}
+.b-red{background:var(--red-l);color:var(--red)}
+.b-blue{background:var(--blue-l);color:var(--blue)}
+.b-gray{background:var(--surface3);color:var(--text2)}
+
+/* ── Check toggle ── */
+.chk-wrap{display:flex;align-items:center;gap:8px;font-size:13px}
+.chk-wrap input[type=checkbox]{width:16px;height:16px;accent-color:var(--green);cursor:pointer}
+
+/* ── Concentrado barras ── */
+.bar-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.bar-label{width:180px;font-size:13px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+.bar-track{flex:1;background:var(--surface3);border-radius:6px;height:10px;overflow:hidden}
+.bar-fill{height:100%;background:var(--green);border-radius:6px;transition:width .5s ease}
+.bar-val{width:110px;text-align:right;font-family:'Fraunces',serif;font-size:14px;color:var(--green);flex-shrink:0}
+
+/* ── Empty ── */
+.empty{text-align:center;padding:3rem 1rem;color:var(--text3)}
+.empty svg{width:38px;height:38px;stroke:var(--border2);fill:none;stroke-width:1.5;margin:0 auto 12px;display:block}
+.empty p{font-size:14px}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(16px);background:var(--text);color:#fff;padding:10px 22px;border-radius:var(--r);font-size:13px;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;z-index:999}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── Semana chip ── */
+.week-chip{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:12px;color:var(--text2)}
+
+/* ── Divider ── */
+.divider{border:none;border-top:1px solid var(--border);margin:1rem 0}
+
+@media(max-width:900px){
+  .stats-4{grid-template-columns:repeat(2,1fr)}
+  .fg-3{grid-template-columns:1fr 1fr}
+  .fgroup.span3{grid-column:span 2}
+}
+@media(max-width:600px){
+  .topbar,.nav{padding:0 1rem}
+  .main{padding:1rem 1rem 4rem}
+  .stats-4,.stats-3{grid-template-columns:1fr 1fr}
+  .fg-3,.fg-2{grid-template-columns:1fr}
+  .fgroup.span2,.fgroup.span3{grid-column:span 1}
+  .nav-tab span{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+    </div>
+    <div>
+      <div class="brand-name">PagoTrack Pro</div>
+      <div class="brand-tag">Sistema de gestión contable · Portfolio Demo</div>
+    </div>
+  </div>
+  <div class="topbar-alerts" id="topAlerts"></div>
+</header>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-tab active" onclick="goTab(0)" id="tab0">
+    <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+    <span>Registro de pagos</span>
+  </button>
+  <button class="nav-tab" onclick="goTab(1)" id="tab1">
+    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    <span>Facturas</span>
+  </button>
+  <button class="nav-tab" onclick="goTab(2)" id="tab2">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    <span>FIEL</span>
+    <span class="nav-badge" id="fielBadge" style="display:none">!</span>
+  </button>
+  <button class="nav-tab" onclick="goTab(3)" id="tab3">
+    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span>Concentrado</span>
+  </button>
+  <button class="nav-tab" onclick="goTab(4)" id="tab4">
+    <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+    <span>Seguros vehículos</span>
+    <span class="nav-badge" id="segBadge" style="display:none">!</span>
+  </button>
+</nav>
+
+<main class="main">
+
+<!-- ═══════════════════════════════════════
+     TAB 0 — REGISTRO DE PAGOS
+═══════════════════════════════════════ -->
+<div class="page active" id="page0">
+  <div class="stats stats-4" id="statsRow0">
+    <div class="stat"><div class="stat-lbl">Registros</div><div class="stat-val" id="s0Count">0</div></div>
+    <div class="stat"><div class="stat-lbl">Total semana</div><div class="stat-val g" id="s0Total">$0.00</div></div>
+    <div class="stat"><div class="stat-lbl">Proveedores</div><div class="stat-val" id="s0Provs">0</div></div>
+    <div class="stat"><div class="stat-lbl">Obras</div><div class="stat-val" id="s0Obras">0</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-title">Nuevo registro de pago</span>
+      <span class="week-chip" id="weekChip"></span>
+    </div>
+    <div class="fgrid fg-3" id="pagoForm">
+      <div class="fgroup"><label>Fecha *</label><input type="date" id="pFecha"></div>
+      <div class="fgroup"><label>Obra / Proyecto *</label><input type="text" id="pObra" placeholder="Ej. Torre Residencial Norte"></div>
+      <div class="fgroup"><label>Proveedor *</label><input type="text" id="pProv" placeholder="Ej. Aceros del Norte SA"></div>
+      <div class="fgroup span2"><label>Concepto *</label><input type="text" id="pConc" placeholder="Ej. Suministro de varilla corrugada 3/8"></div>
+      <div class="fgroup"><label>Forma de pago *</label>
+        <select id="pForma">
+          <option value="">Seleccionar...</option>
+          <option>Transferencia SPEI</option><option>Cheque</option>
+          <option>Efectivo</option><option>Tarjeta de crédito</option>
+          <option>Tarjeta de débito</option><option>Depósito bancario</option>
+        </select>
+      </div>
+      <div class="fgroup"><label>Banco</label>
+        <select id="pBanco">
+          <option value="">Seleccionar...</option>
+          <option>BBVA</option><option>Banamex</option><option>BanBajío</option>
+          <option>Banorte</option><option>Santander</option><option>HSBC</option>
+          <option>Scotiabank</option><option>Inbursa</option><option>Otro</option>
+        </select>
+      </div>
+      <div class="fgroup"><label>Monto ($) *</label><input type="number" id="pMonto" placeholder="0.00" min="0" step="0.01"></div>
+      <div class="fgroup"><label>&nbsp;</label><div id="pErr" class="ferr"></div></div>
+    </div>
+    <div class="card-foot">
+      <span style="font-size:12px;color:var(--text3)">Los pagos con banco BBVA, Banamex, BanBajío, Banorte o Santander se enviarán automáticamente a Facturas</span>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline" onclick="clearPagoForm()">Limpiar</button>
+        <button class="btn btn-green" onclick="addPago()">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Agregar registro
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-title">Registros de la semana</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span style="font-size:12px;color:var(--text3)" id="pagoCountLbl">0 registros</span>
+        <button class="btn btn-green" id="pagoExportBtn" onclick="exportPagos()" disabled>
+          <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Exportar Excel
+        </button>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>#</th><th>Fecha</th><th>Obra</th><th>Proveedor</th>
+          <th>Concepto</th><th>Forma pago</th><th>Banco</th><th>Monto</th><th></th>
+        </tr></thead>
+        <tbody id="pagoBody"></tbody>
+      </table>
+      <div class="empty" id="pagoEmpty">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <p>Sin registros. Agrega tu primer pago arriba.</p>
+      </div>
+    </div>
+    <div class="card-foot">
+      <button class="btn btn-ghost" id="pagoClearAll" onclick="clearAllPagos()" style="display:none">
+        <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+        Limpiar todo
+      </button>
+      <div style="display:flex;align-items:baseline;gap:8px">
+        <span style="font-size:13px;color:var(--text2)">Total semana:</span>
+        <span style="font-family:'Fraunces',serif;font-size:22px;color:var(--green)" id="pagoTotal">$0.00</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TAB 1 — FACTURAS
+═══════════════════════════════════════ -->
+<div class="page" id="page1">
+  <div class="stats stats-3" style="margin-bottom:1.5rem">
+    <div class="stat"><div class="stat-lbl">Facturas recibidas</div><div class="stat-val" id="fRec">0</div></div>
+    <div class="stat"><div class="stat-lbl">Facturas emitidas</div><div class="stat-val" id="fEmi">0</div></div>
+    <div class="stat"><div class="stat-lbl">Pendientes de factura</div><div class="stat-val g" id="fPend">0</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-title">Control de facturas</span>
+      <span style="font-size:12px;color:var(--text3)">Pagos bancarios BBVA · Banamex · BanBajío · Banorte · Santander</span>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Fecha</th><th>Proveedor</th><th>Concepto</th><th>Banco</th>
+          <th>Monto</th><th>Factura recibida</th><th>Factura emitida</th><th>Folio</th>
+        </tr></thead>
+        <tbody id="factBody"></tbody>
+      </table>
+      <div class="empty" id="factEmpty">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <p>Aún no hay pagos bancarios registrados.<br>Los pagos con banco elegible aparecerán aquí automáticamente.</p>
+      </div>
+    </div>
+    <div class="card-foot">
+      <span style="font-size:12px;color:var(--text3)">Marca las facturas conforme las recibas o emitas</span>
+      <button class="btn btn-green" onclick="exportFacturas()" id="factExportBtn" disabled>
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar Excel
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TAB 2 — FIEL
+═══════════════════════════════════════ -->
+<div class="page" id="page2">
+  <div class="card">
+    <div class="card-head">
+      <span class="card-title">Nueva FIEL</span>
+    </div>
+    <div class="fgrid fg-3">
+      <div class="fgroup"><label>Nombre / Razón social *</label><input type="text" id="fNombre" placeholder="Ej. Constructora Norte SA de CV"></div>
+      <div class="fgroup"><label>RFC *</label><input type="text" id="fRFC" placeholder="Ej. CON010101ABC"></div>
+      <div class="fgroup"><label>Tipo</label>
+        <select id="fTipo"><option>Persona Moral</option><option>Persona Física</option></select>
+      </div>
+      <div class="fgroup"><label>Fecha de vencimiento *</label><input type="date" id="fVence"></div>
+      <div class="fgroup"><label>Responsable</label><input type="text" id="fResp" placeholder="Nombre del responsable"></div>
+      <div class="fgroup"><label>Notas</label><input type="text" id="fNotas" placeholder="Opcional"></div>
+    </div>
+    <div class="card-foot">
+      <div id="fErr" class="ferr"></div>
+      <button class="btn btn-green" onclick="addFiel()">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Agregar FIEL
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-title">Vigencia de FIELs</span>
+      <span style="font-size:12px;color:var(--text3)"><span class="badge b-amber">● Amarillo</span> = vence en 30 días &nbsp; <span class="badge b-red">● Rojo</span> = vence en 15 días o ya venció</span>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Nombre / Razón social</th><th>RFC</th><th>Tipo</th>
+          <th>Vencimiento</th><th>Días restantes</th><th>Estado</th><th>Responsable</th><th>Notas</th><th></th>
+        </tr></thead>
+        <tbody id="fielBody"></tbody>
+      </table>
+      <div class="empty" id="fielEmpty">
+        <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <p>Sin FIELs registradas. Agrega una arriba.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TAB 3 — CONCENTRADO POR OBRA
+═══════════════════════════════════════ -->
+<div class="page" id="page3">
+  <div class="card">
+    <div class="card-head">
+      <span class="card-title">Concentrado de gastos por obra</span>
+      <span style="font-size:12px;color:var(--text3)" id="concFecha"></span>
+    </div>
+    <div class="card-body" id="concBody">
+      <div class="empty">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <p>Agrega registros de pago para ver el concentrado.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="concDetCard" style="display:none">
+    <div class="card-head">
+      <span class="card-title">Detalle por obra</span>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Obra</th><th>Registros</th><th>Proveedores</th><th>Total gastado</th><th>% del total</th></tr></thead>
+        <tbody id="concDetBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     TAB 4 — SEGUROS VEHÍCULOS
+═══════════════════════════════════════ -->
+<div class="page" id="page4">
+  <div class="card">
+    <div class="card-head"><span class="card-title">Registrar vehículo / póliza</span></div>
+    <div class="fgrid fg-3">
+      <div class="fgroup"><label>Marca *</label><input type="text" id="sMarca" placeholder="Ej. Nissan"></div>
+      <div class="fgroup"><label>Modelo</label><input type="text" id="sModelo" placeholder="Ej. NP300 2022"></div>
+      <div class="fgroup"><label>Placas *</label><input type="text" id="sPlacas" placeholder="Ej. ABC-123-D"></div>
+      <div class="fgroup"><label>Aseguradora *</label><input type="text" id="sAseg" placeholder="Ej. GNP Seguros"></div>
+      <div class="fgroup"><label>No. de póliza</label><input type="text" id="sPoliza" placeholder="Ej. POL-2024-001"></div>
+      <div class="fgroup"><label>Agente</label><input type="text" id="sAgente" placeholder="Nombre del agente"></div>
+      <div class="fgroup"><label>Tel. del agente</label><input type="text" id="sTel" placeholder="Ej. 33 1234 5678"></div>
+      <div class="fgroup"><label>Vigencia del seguro *</label><input type="date" id="sVence"></div>
+      <div class="fgroup"><label>Periodicidad de pago</label>
+        <select id="sPeriod">
+          <option value="">Seleccionar...</option>
+          <option>Anual</option><option>Semestral</option><option>Trimestral</option><option>Mensual</option>
+        </select>
+      </div>
+      <div class="fgroup"><label>Próximo pago de póliza</label><input type="date" id="sProxPago"></div>
+      <div class="fgroup"><label>Monto de póliza ($)</label><input type="number" id="sMontoPol" placeholder="0.00" min="0" step="0.01"></div>
+      <div class="fgroup"><label>Notas</label><input type="text" id="sNotas" placeholder="Opcional"></div>
+    </div>
+    <div class="card-foot">
+      <div id="sErr" class="ferr"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-outline" onclick="clearSegForm()">Limpiar</button>
+        <button class="btn btn-green" onclick="addSeguro()">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Agregar vehículo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <span class="card-title">Vehículos asegurados</span>
+      <span style="font-size:12px;color:var(--text3)"><span class="badge b-amber">● 30 días</span> &nbsp; <span class="badge b-red">● 15 días / vencido</span></span>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr>
+          <th>Vehículo</th><th>Placas</th><th>Aseguradora</th><th>Póliza</th>
+          <th>Agente / Tel.</th><th>Periodicidad</th><th>Próx. pago</th>
+          <th>Vence seguro</th><th>Estado</th><th></th>
+        </tr></thead>
+        <tbody id="segBody"></tbody>
+      </table>
+      <div class="empty" id="segEmpty">
+        <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+        <p>Sin vehículos registrados. Agrega uno arriba.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let pagos   = JSON.parse(localStorage.getItem('pt_pagos')   || '[]');
+let fiels   = JSON.parse(localStorage.getItem('pt_fiels')   || '[]');
+let seguros = JSON.parse(localStorage.getItem('pt_seguros') || '[]');
+let nextId  = parseInt(localStorage.getItem('pt_nid') || '1');
+
+const BANCOS_FACT = ['BBVA','Banamex','BanBajío','Banorte','Santander'];
+
+function save() {
+  localStorage.setItem('pt_pagos',   JSON.stringify(pagos));
+  localStorage.setItem('pt_fiels',   JSON.stringify(fiels));
+  localStorage.setItem('pt_seguros', JSON.stringify(seguros));
+  localStorage.setItem('pt_nid',     String(nextId));
+}
+
+// ═══════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════
+function eid(id){ return document.getElementById(id); }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmtM(n){ return '$'+Number(n||0).toLocaleString('es-MX',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmtD(str){
+  if(!str) return '—';
+  const d = new Date(str+'T12:00:00');
+  return d.toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'});
+}
+function daysLeft(str){
+  if(!str) return null;
+  const diff = new Date(str+'T12:00:00') - new Date();
+  return Math.ceil(diff / 86400000);
+}
+function venceBadge(str){
+  const d = daysLeft(str);
+  if(d === null) return '';
+  if(d < 0)  return '<span class="badge b-red">Vencida</span>';
+  if(d <= 15) return `<span class="badge b-red">Vence en ${d}d</span>`;
+  if(d <= 30) return `<span class="badge b-amber">Vence en ${d}d</span>`;
+  return `<span class="badge b-green">Vigente (${d}d)</span>`;
+}
+function showToast(msg){
+  const t = eid('toast'); t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ═══════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════
+function goTab(n){
+  document.querySelectorAll('.page').forEach((p,i)=>{
+    p.classList.toggle('active', i===n);
+  });
+  document.querySelectorAll('.nav-tab').forEach((t,i)=>{
+    t.classList.toggle('active', i===n);
+  });
+  if(n===1) renderFacturas();
+  if(n===2) renderFiels();
+  if(n===3) renderConcentrado();
+  if(n===4) renderSeguros();
+}
+
+// ═══════════════════════════════════════
+// TOP ALERTS
+// ═══════════════════════════════════════
+function updateAlerts(){
+  const container = eid('topAlerts');
+  container.innerHTML = '';
+  let warn30=0, warn15=0;
+
+  [...fiels,...seguros].forEach(r=>{
+    const d = daysLeft(r.vence || r.venceSeg);
+    if(d !== null){
+      if(d >= 0 && d <= 15) warn15++;
+      else if(d > 15 && d <= 30) warn30++;
+    }
+    const d2 = daysLeft(r.proxPago);
+    if(d2 !== null){
+      if(d2 >= 0 && d2 <= 15) warn15++;
+      else if(d2 > 15 && d2 <= 30) warn30++;
+    }
+  });
+
+  if(warn30 > 0){
+    container.innerHTML += `<div class="alert-pill yellow"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>${warn30} vence en 30 días</div>`;
+  }
+  if(warn15 > 0){
+    container.innerHTML += `<div class="alert-pill red"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>${warn15} vence pronto / vencido</div>`;
+  }
+
+  // nav badges
+  const fielAlert = fiels.some(r=>{ const d=daysLeft(r.vence); return d!==null && d<=30; });
+  eid('fielBadge').style.display = fielAlert ? 'inline' : 'none';
+  const segAlert = seguros.some(r=>{
+    const d1=daysLeft(r.venceSeg), d2=daysLeft(r.proxPago);
+    return (d1!==null&&d1<=30)||(d2!==null&&d2<=30);
+  });
+  eid('segBadge').style.display = segAlert ? 'inline' : 'none';
+}
+
+// ═══════════════════════════════════════
+// SEMANA
+// ═══════════════════════════════════════
+(function initWeek(){
+  const now=new Date(), day=now.getDay();
+  const diff=now.getDate()-day+(day===0?-6:1);
+  const mon=new Date(now); mon.setDate(diff);
+  const fri=new Date(mon); fri.setDate(mon.getDate()+4);
+  const fmt=d=>d.toLocaleDateString('es-MX',{day:'2-digit',month:'short',year:'numeric'});
+  eid('weekChip').textContent=`${fmt(mon)} – ${fmt(fri)}`;
+  eid('concFecha').textContent=`Semana ${fmt(mon)} al ${fmt(fri)}`;
+  eid('pFecha').value=now.toISOString().split('T')[0];
+})();
+
+// ═══════════════════════════════════════
+// TAB 0 — PAGOS
+// ═══════════════════════════════════════
+function addPago(){
+  const fecha=eid('pFecha').value, obra=eid('pObra').value.trim(),
+        prov=eid('pProv').value.trim(), conc=eid('pConc').value.trim(),
+        forma=eid('pForma').value, banco=eid('pBanco').value,
+        monto=parseFloat(eid('pMonto').value);
+
+  const miss=[];
+  if(!fecha) miss.push('Fecha');
+  if(!obra)  miss.push('Obra');
+  if(!prov)  miss.push('Proveedor');
+  if(!conc)  miss.push('Concepto');
+  if(!forma) miss.push('Forma de pago');
+  if(!monto||monto<=0) miss.push('Monto');
+
+  if(miss.length){ eid('pErr').textContent='Falta: '+miss.join(', '); return; }
+  eid('pErr').textContent='';
+
+  pagos.push({ id:nextId++, fecha, obra, proveedor:prov, concepto:conc,
+    forma_pago:forma, banco:banco||'—', monto,
+    factRecibida:false, factEmitida:false, folioFact:'' });
+  save();
+  clearPagoForm();
+  renderPagos();
+  updateAlerts();
+  showToast('✓ Registro agregado' + (BANCOS_FACT.includes(banco) ? ' · Enviado a Facturas' : ''));
+}
+
+function clearPagoForm(){
+  ['pObra','pProv','pConc','pMonto'].forEach(id=>eid(id).value='');
+  eid('pForma').value=''; eid('pBanco').value='';
+  eid('pFecha').value=new Date().toISOString().split('T')[0];
+  eid('pErr').textContent='';
+}
+
+function deletePago(id){
+  pagos=pagos.filter(r=>r.id!==id); save(); renderPagos(); showToast('Registro eliminado');
+}
+
+function clearAllPagos(){
+  if(!confirm('¿Eliminar todos los registros de pagos?')) return;
+  pagos=[]; save(); renderPagos(); showToast('Tabla limpiada');
+}
+
+function renderPagos(){
+  const tbody=eid('pagoBody'), empty=eid('pagoEmpty');
+  tbody.innerHTML='';
+  empty.style.display=pagos.length?'none':'block';
+  eid('pagoExportBtn').disabled=pagos.length===0;
+  eid('pagoClearAll').style.display=pagos.length?'inline-flex':'none';
+  eid('pagoCountLbl').textContent=`${pagos.length} registro${pagos.length!==1?'s':''}`;
+
+  pagos.forEach((r,i)=>{
+    const isFact=BANCOS_FACT.includes(r.banco);
+    tbody.innerHTML+=`<tr>
+      <td style="color:var(--text3);font-size:12px">${i+1}</td>
+      <td>${fmtD(r.fecha)}</td>
+      <td><span class="badge b-green">${esc(r.obra)}</span></td>
+      <td><strong>${esc(r.proveedor)}</strong></td>
+      <td style="color:var(--text2)">${esc(r.concepto)}</td>
+      <td>${esc(r.forma_pago)}</td>
+      <td>${isFact?`<span class="badge b-blue">${esc(r.banco)}</span>`:esc(r.banco)}</td>
+      <td class="mono">${fmtM(r.monto)}</td>
+      <td class="cen"><button class="btn-del" onclick="deletePago(${r.id})">×</button></td>
+    </tr>`;
+  });
+
+  // stats
+  const total=pagos.reduce((s,r)=>s+r.monto,0);
+  const provs=new Set(pagos.map(r=>r.proveedor).filter(Boolean));
+  const obras=new Set(pagos.map(r=>r.obra).filter(Boolean));
+  eid('s0Count').textContent=pagos.length;
+  eid('s0Total').textContent=fmtM(total);
+  eid('pagoTotal').textContent=fmtM(total);
+  eid('s0Provs').textContent=provs.size;
+  eid('s0Obras').textContent=obras.size;
+
+  renderFacturas();
+  renderConcentrado();
+}
+
+function exportPagos(){
+  if(!pagos.length) return;
+  const now=new Date(), day=now.getDay();
+  const diff=now.getDate()-day+(day===0?-6:1);
+  const mon=new Date(now); mon.setDate(diff);
+  const fri=new Date(mon); fri.setDate(mon.getDate()+4);
+  const pad=d=>String(d).padStart(2,'0');
+  const fF=d=>`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}`;
+  const fD=d=>`${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()}`;
+
+  const hdr=[['Relación de Pagos — Semana del '+fD(mon)+' al '+fD(fri)],[]];
+  const cols=['#','Fecha','Obra / Proyecto','Proveedor','Concepto','Forma de pago','Banco','Monto'];
+  const data=pagos.map((r,i)=>[i+1,fmtD(r.fecha),r.obra,r.proveedor,r.concepto,r.forma_pago,r.banco,r.monto]);
+  const totalR=['','','','','','','TOTAL',pagos.reduce((s,r)=>s+r.monto,0)];
+
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet([...hdr,cols,...data,[],totalR]);
+  ws['!cols']=[{wch:4},{wch:14},{wch:26},{wch:28},{wch:42},{wch:22},{wch:16},{wch:14}];
+  XLSX.utils.book_append_sheet(wb,ws,'Pagos semana');
+  XLSX.writeFile(wb,`Pagos_Semana_${fF(mon)}_al_${fF(fri)}.xlsx`);
+  showToast('✓ Excel descargado');
+}
+
+// ═══════════════════════════════════════
+// TAB 1 — FACTURAS
+// ═══════════════════════════════════════
+function renderFacturas(){
+  const elegibles=pagos.filter(r=>BANCOS_FACT.includes(r.banco));
+  const tbody=eid('factBody'), empty=eid('factEmpty');
+  tbody.innerHTML='';
+  empty.style.display=elegibles.length?'none':'block';
+  eid('factExportBtn').disabled=elegibles.length===0;
+
+  elegibles.forEach(r=>{
+    tbody.innerHTML+=`<tr>
+      <td>${fmtD(r.fecha)}</td>
+      <td><strong>${esc(r.proveedor)}</strong></td>
+      <td style="color:var(--text2)">${esc(r.concepto)}</td>
+      <td><span class="badge b-blue">${esc(r.banco)}</span></td>
+      <td class="mono">${fmtM(r.monto)}</td>
+      <td class="cen">
+        <label class="chk-wrap" style="justify-content:center">
+          <input type="checkbox" ${r.factRecibida?'checked':''} onchange="toggleFact(${r.id},'factRecibida',this.checked)">
+          <span>${r.factRecibida?'<span class="badge b-green">Sí</span>':'<span class="badge b-gray">No</span>'}</span>
+        </label>
+      </td>
+      <td class="cen">
+        <label class="chk-wrap" style="justify-content:center">
+          <input type="checkbox" ${r.factEmitida?'checked':''} onchange="toggleFact(${r.id},'factEmitida',this.checked)">
+          <span>${r.factEmitida?'<span class="badge b-green">Sí</span>':'<span class="badge b-gray">No</span>'}</span>
+        </label>
+      </td>
+      <td><input type="text" value="${esc(r.folioFact||'')}" placeholder="Folio / UUID" style="max-width:160px;font-size:12px" onchange="setFolio(${r.id},this.value)"></td>
+    </tr>`;
+  });
+
+  const recibidas=elegibles.filter(r=>r.factRecibida).length;
+  const emitidas=elegibles.filter(r=>r.factEmitida).length;
+  const pendientes=elegibles.filter(r=>!r.factRecibida||!r.factEmitida).length;
+  eid('fRec').textContent=recibidas;
+  eid('fEmi').textContent=emitidas;
+  eid('fPend').textContent=pendientes;
+}
+
+function toggleFact(id, field, val){
+  const r=pagos.find(p=>p.id===id);
+  if(r){ r[field]=val; save(); renderFacturas(); }
+}
+function setFolio(id, val){
+  const r=pagos.find(p=>p.id===id);
+  if(r){ r.folioFact=val; save(); }
+}
+
+function exportFacturas(){
+  const elegibles=pagos.filter(r=>BANCOS_FACT.includes(r.banco));
+  if(!elegibles.length) return;
+  const cols=['Fecha','Proveedor','Concepto','Banco','Monto','Factura recibida','Factura emitida','Folio / UUID'];
+  const data=elegibles.map(r=>[fmtD(r.fecha),r.proveedor,r.concepto,r.banco,r.monto,r.factRecibida?'Sí':'No',r.factEmitida?'Sí':'No',r.folioFact||'']);
+  const wb=XLSX.utils.book_new();
+  const ws=XLSX.utils.aoa_to_sheet([cols,...data]);
+  ws['!cols']=[{wch:14},{wch:28},{wch:42},{wch:14},{wch:14},{wch:18},{wch:18},{wch:36}];
+  XLSX.utils.book_append_sheet(wb,ws,'Facturas');
+  XLSX.writeFile(wb,'Control_Facturas.xlsx');
+  showToast('✓ Excel de facturas descargado');
+}
+
+// ═══════════════════════════════════════
+// TAB 2 — FIEL
+// ═══════════════════════════════════════
+function addFiel(){
+  const nombre=eid('fNombre').value.trim(), rfc=eid('fRFC').value.trim().toUpperCase(),
+        tipo=eid('fTipo').value, vence=eid('fVence').value,
+        resp=eid('fResp').value.trim(), notas=eid('fNotas').value.trim();
+  if(!nombre||!rfc||!vence){ eid('fErr').textContent='Completa: Nombre, RFC y Fecha de vencimiento'; return; }
+  eid('fErr').textContent='';
+  fiels.push({id:nextId++,nombre,rfc,tipo,vence,responsable:resp,notas});
+  save(); clearFielForm(); renderFiels(); updateAlerts();
+  showToast('✓ FIEL agregada');
+}
+
+function clearFielForm(){
+  ['fNombre','fRFC','fVence','fResp','fNotas'].forEach(id=>eid(id).value='');
+  eid('fTipo').value='Persona Moral';
+}
+
+function deleteFiel(id){
+  fiels=fiels.filter(r=>r.id!==id); save(); renderFiels(); updateAlerts(); showToast('FIEL eliminada');
+}
+
+function renderFiels(){
+  const tbody=eid('fielBody'), empty=eid('fielEmpty');
+  tbody.innerHTML='';
+  empty.style.display=fiels.length?'none':'block';
+  fiels.forEach(r=>{
+    const d=daysLeft(r.vence);
+    tbody.innerHTML+=`<tr>
+      <td><strong>${esc(r.nombre)}</strong></td>
+      <td style="font-family:monospace;font-size:13px">${esc(r.rfc)}</td>
+      <td><span class="badge b-blue">${esc(r.tipo)}</span></td>
+      <td>${fmtD(r.vence)}</td>
+      <td style="text-align:center;font-weight:500;color:${d!==null&&d<=15?'var(--red)':d!==null&&d<=30?'var(--amber)':'var(--green)'}">${d!==null?(d<0?'Vencida':d+'d'):'—'}</td>
+      <td>${venceBadge(r.vence)}</td>
+      <td>${esc(r.responsable||'—')}</td>
+      <td style="color:var(--text3);font-size:13px">${esc(r.notas||'—')}</td>
+      <td class="cen"><button class="btn-del" onclick="deleteFiel(${r.id})">×</button></td>
+    </tr>`;
+  });
+}
+
+// ═══════════════════════════════════════
+// TAB 3 — CONCENTRADO
+// ═══════════════════════════════════════
+function renderConcentrado(){
+  if(!eid('page3').classList.contains('active')) return;
+  const body=eid('concBody'), detCard=eid('concDetCard'), detBody=eid('concDetBody');
+  if(!pagos.length){
+    body.innerHTML='<div class="empty"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><p>Agrega registros de pago para ver el concentrado.</p></div>';
+    detCard.style.display='none'; return;
+  }
+
+  const obraMap={};
+  pagos.forEach(r=>{
+    if(!obraMap[r.obra]) obraMap[r.obra]={total:0,count:0,provs:new Set()};
+    obraMap[r.obra].total+=r.monto;
+    obraMap[r.obra].count++;
+    obraMap[r.obra].provs.add(r.proveedor);
+  });
+
+  const total=pagos.reduce((s,r)=>s+r.monto,0);
+  const sorted=Object.entries(obraMap).sort((a,b)=>b[1].total-a[1].total);
+  const max=sorted[0][1].total;
+
+  body.innerHTML=sorted.map(([obra,d])=>`
+    <div class="bar-row">
+      <div class="bar-label" title="${esc(obra)}">${esc(obra)}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(d.total/max*100)}%"></div></div>
+      <div class="bar-val">${fmtM(d.total)}</div>
+    </div>
+  `).join('');
+
+  detCard.style.display='block';
+  detBody.innerHTML=sorted.map(([obra,d])=>`<tr>
+    <td><strong>${esc(obra)}</strong></td>
+    <td class="cen">${d.count}</td>
+    <td class="cen">${d.provs.size}</td>
+    <td class="mono">${fmtM(d.total)}</td>
+    <td class="cen"><span class="badge b-green">${Math.round(d.total/total*100)}%</span></td>
+  </tr>`).join('');
+}
+
+// ═══════════════════════════════════════
+// TAB 4 — SEGUROS
+// ═══════════════════════════════════════
+function addSeguro(){
+  const marca=eid('sMarca').value.trim(), modelo=eid('sModelo').value.trim(),
+        placas=eid('sPlacas').value.trim(), aseg=eid('sAseg').value.trim(),
+        poliza=eid('sPoliza').value.trim(), agente=eid('sAgente').value.trim(),
+        tel=eid('sTel').value.trim(), venceSeg=eid('sVence').value,
+        period=eid('sPeriod').value, proxPago=eid('sProxPago').value,
+        montoPol=parseFloat(eid('sMontoPol').value)||0,
+        notas=eid('sNotas').value.trim();
+
+  if(!marca||!placas||!aseg||!venceSeg){ eid('sErr').textContent='Falta: Marca, Placas, Aseguradora y Vigencia'; return; }
+  eid('sErr').textContent='';
+
+  seguros.push({id:nextId++,marca,modelo,placas,aseguradora:aseg,poliza,agente,tel,venceSeg,period,proxPago,montoPol,notas});
+  save(); clearSegForm(); renderSeguros(); updateAlerts();
+  showToast('✓ Vehículo agregado');
+}
+
+function clearSegForm(){
+  ['sMarca','sModelo','sPlacas','sAseg','sPoliza','sAgente','sTel','sVence','sProxPago','sMontoPol','sNotas']
+    .forEach(id=>eid(id).value='');
+  eid('sPeriod').value='';
+}
+
+function deleteSeg(id){
+  seguros=seguros.filter(r=>r.id!==id); save(); renderSeguros(); updateAlerts(); showToast('Vehículo eliminado');
+}
+
+function renderSeguros(){
+  const tbody=eid('segBody'), empty=eid('segEmpty');
+  tbody.innerHTML='';
+  empty.style.display=seguros.length?'none':'block';
+  seguros.forEach(r=>{
+    const dSeg=daysLeft(r.venceSeg), dPago=daysLeft(r.proxPago);
+    const estadoSeg=venceBadge(r.venceSeg);
+    const estadoPago=r.proxPago?(dPago!==null&&dPago<=15?`<span class="badge b-red">Pago en ${dPago}d</span>`:dPago!==null&&dPago<=30?`<span class="badge b-amber">Pago en ${dPago}d</span>`:`<span class="badge b-gray">Pago ${fmtD(r.proxPago)}</span>`):'—';
+    tbody.innerHTML+=`<tr>
+      <td><strong>${esc(r.marca)}</strong>${r.modelo?`<br><span style="font-size:12px;color:var(--text3)">${esc(r.modelo)}</span>`:''}</td>
+      <td style="font-family:monospace">${esc(r.placas)}</td>
+      <td>${esc(r.aseguradora)}</td>
+      <td style="font-size:12px;color:var(--text3)">${r.poliza?esc(r.poliza):'—'}</td>
+      <td style="font-size:12px">${r.agente?esc(r.agente):'—'}${r.tel?`<br><span style="color:var(--text3)">${esc(r.tel)}</span>`:''}</td>
+      <td>${r.period?`<span class="badge b-gray">${esc(r.period)}</span>`:'—'}</td>
+      <td style="font-size:13px">${estadoPago}</td>
+      <td>${fmtD(r.venceSeg)}</td>
+      <td>${estadoSeg}</td>
+      <td class="cen"><button class="btn-del" onclick="deleteSeg(${r.id})">×</button></td>
+    </tr>`;
+  });
+}
+
+// ═══════════════════════════════════════
+// DEMO SEED DATA (fictional — runs once per browser)
+// This app already runs 100% on localStorage, nothing external.
+// ═══════════════════════════════════════
+function seedDemoData(){
+  if(localStorage.getItem('pt_seeded')) return;
+  const today = new Date();
+  const iso = (offsetDays) => { const d=new Date(today); d.setDate(d.getDate()+offsetDays); return d.toISOString().split('T')[0]; };
+
+  pagos = [
+    {id:nextId++, fecha:iso(-1), obra:'Torre Residencial Norte', proveedor:'Aceros del Bajío SA', concepto:'Suministro de varilla corrugada 3/8', forma_pago:'Transferencia SPEI', banco:'BBVA', monto:48250.00, factRecibida:true, factEmitida:false, folioFact:''},
+    {id:nextId++, fecha:iso(-1), obra:'Torre Residencial Norte', proveedor:'Concretos del Valle', concepto:"Concreto premezclado f'c=250", forma_pago:'Transferencia SPEI', banco:'Banorte', monto:76900.00, factRecibida:true, factEmitida:true, folioFact:'A-00219'},
+    {id:nextId++, fecha:iso(-2), obra:'Plaza Comercial Sur', proveedor:'Electro Instalaciones RH', concepto:'Material eléctrico, ductería y cableado', forma_pago:'Cheque', banco:'Santander', monto:33420.50, factRecibida:false, factEmitida:false, folioFact:''},
+    {id:nextId++, fecha:iso(-2), obra:'Plaza Comercial Sur', proveedor:'Cancelería y Aluminios GDL', concepto:'Fabricación e instalación de cancelería', forma_pago:'Transferencia SPEI', banco:'BanBajío', monto:112300.00, factRecibida:true, factEmitida:false, folioFact:''},
+    {id:nextId++, fecha:iso(-3), obra:'Bodega Industrial Este', proveedor:'Ferretería Industrial Cobo', concepto:'Herramienta menor y consumibles', forma_pago:'Tarjeta de crédito', banco:'Otro', monto:8750.00, factRecibida:false, factEmitida:false, folioFact:''},
+    {id:nextId++, fecha:iso(-3), obra:'Bodega Industrial Este', proveedor:'Transportes y Grúas del Norte', concepto:'Renta de grúa telescópica 3 días', forma_pago:'Transferencia SPEI', banco:'HSBC', monto:27600.00, factRecibida:false, factEmitida:false, folioFact:''},
+    {id:nextId++, fecha:iso(-4), obra:'Torre Residencial Norte', proveedor:'Impermeabilizantes Aztex', concepto:'Sistema de impermeabilización azotea', forma_pago:'Depósito bancario', banco:'Scotiabank', monto:19875.00, factRecibida:false, factEmitida:false, folioFact:''},
+    {id:nextId++, fecha:iso(-5), obra:'Plaza Comercial Sur', proveedor:'Aceros del Bajío SA', concepto:'Perfiles de acero estructural', forma_pago:'Transferencia SPEI', banco:'BBVA', monto:154200.00, factRecibida:true, factEmitida:true, folioFact:'A-00187'},
+    {id:nextId++, fecha:iso(-6), obra:'Bodega Industrial Este', proveedor:'Pinturas y Recubrimientos Solmex', concepto:'Pintura epóxica para piso industrial', forma_pago:'Efectivo', banco:'Otro', monto:14300.00, factRecibida:false, factEmitida:false, folioFact:''},
+    {id:nextId++, fecha:iso(-7), obra:'Torre Residencial Norte', proveedor:'Concretos del Valle', concepto:"Concreto premezclado f'c=200", forma_pago:'Transferencia SPEI', banco:'Banamex', monto:68100.00, factRecibida:true, factEmitida:false, folioFact:''},
+  ];
+
+  fiels = [
+    {id:nextId++, nombre:'Constructora Norte SA de CV', rfc:'CNO150422KX1', tipo:'Persona Moral', vence:iso(-5), responsable:'Andrés López', notas:'Renovar cuanto antes'},
+    {id:nextId++, nombre:'Grupo Edificador del Bajío SA de CV', rfc:'GEB180911R55', tipo:'Persona Moral', vence:iso(9), responsable:'Renata Gómez', notas:''},
+    {id:nextId++, nombre:'Diego Fernández Salcido', rfc:'FESD8907142M0', tipo:'Persona Física', vence:iso(22), responsable:'Diego Fernández', notas:'Representante legal suplente'},
+    {id:nextId++, nombre:'Inmobiliaria Cedro y Roble SA de CV', rfc:'ICR200630JJ4', tipo:'Persona Moral', vence:iso(120), responsable:'Paula Nuñez', notas:''},
+  ];
+
+  seguros = [
+    {id:nextId++, marca:'Nissan', modelo:'NP300 2022', placas:'JGH-234-A', aseguradora:'GNP Seguros', poliza:'POL-2024-0118', agente:'Marco Diaz', tel:'33 5521 4409', venceSeg:iso(-3), period:'Anual', proxPago:iso(14), montoPol:18400, notas:'Camioneta de obra'},
+    {id:nextId++, marca:'Ford', modelo:'F-150 2021', placas:'JHD-871-B', aseguradora:'Qualitas', poliza:'POL-2023-9821', agente:'Isabela Torres', tel:'33 4410 7723', venceSeg:iso(11), period:'Semestral', proxPago:iso(11), montoPol:22150, notas:''},
+    {id:nextId++, marca:'Toyota', modelo:'Hilux 2023', placas:'JLK-092-C', aseguradora:'HDI Seguros', poliza:'POL-2024-0456', agente:'Marco Diaz', tel:'33 5521 4409', venceSeg:iso(180), period:'Anual', proxPago:iso(90), montoPol:19800, notas:'Vehículo del residente de obra'},
+  ];
+
+  save();
+  localStorage.setItem('pt_seeded','1');
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+seedDemoData();
+renderPagos();
+renderFiels();
+renderSeguros();
+updateAlerts();
+</script>
+</body>
+</html>

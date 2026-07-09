@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CoreDesk Support — Portfolio Demo</title>
+<style>
+:root{
+  --navy:#0E3255; --navy2:#153E68;
+  --orange:#FF6A00; --orange2:#FF8C00;
+  --red:#FF4B4B; --red2:#FF6A6A;
+  --bg:#F5F7FB;
+  --card:#FFFFFF;
+  --border:#E6EBF2;
+  --border2:#E1E7F0;
+  --border3:#DCE6F0;
+  --text:#1F2A37;
+  --text2:#5F6C7B;
+  --text3:#98A6B7;
+  --user-bg:#EEF3F8;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+/* ============ LOGIN VIEW ============ */
+#loginView{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:40px 20px;
+}
+.login-wrapper{ width:100%; max-width:620px; text-align:center; }
+.login-logo{ width:100%; max-width:360px; margin:0 auto 6px; display:block; }
+.login-subtitle{
+  color:#4F6072; font-size:1.05rem; font-weight:600;
+  line-height:1.6; max-width:520px; margin:0 auto 22px;
+}
+.login-form{
+  background:linear-gradient(180deg,#F3F7FB 0%,#EDF2F7 100%);
+  border:1px solid var(--border3);
+  border-radius:20px;
+  box-shadow:0 16px 34px rgba(14,50,85,0.12);
+  padding:26px 26px 22px;
+  text-align:left;
+}
+.field-label{ color:var(--navy); font-weight:800; font-size:0.94rem; margin:14px 0 7px 2px; }
+.field-label:first-child{ margin-top:0; }
+.login-form input{
+  width:100%; border-radius:10px; border:1px solid #C7D3E0;
+  background:#FFFFFF; padding:0.85rem 1rem; font-size:0.98rem;
+  color:var(--text); outline:none; box-shadow:inset 0 1px 2px rgba(14,50,85,0.03);
+  transition:border-color .15s, box-shadow .15s;
+  font-family:inherit;
+}
+.login-form input:focus{
+  border-color:var(--orange2);
+  box-shadow:0 0 0 3px rgba(255,140,0,0.12);
+}
+.login-warning{
+  display:none;
+  margin-top:14px; background:#FFF7E6; border:1px solid #FFE1A8;
+  color:#8A5A00; font-size:0.88rem; font-weight:600;
+  padding:10px 14px; border-radius:10px;
+}
+.btn-start{
+  display:block; width:100%; margin-top:18px;
+  background:linear-gradient(135deg,var(--orange2) 0%,var(--orange) 100%);
+  color:#fff; border:none; border-radius:15px; font-weight:800;
+  height:52px; font-size:1rem; letter-spacing:.2px; cursor:pointer;
+  box-shadow:0 12px 24px rgba(255,122,0,0.24);
+  transition:transform .15s, filter .15s;
+}
+.btn-start:hover{ transform:translateY(-1px); filter:brightness(1.03); }
+
+/* ============ CHAT VIEW ============ */
+#chatView{ min-height:100vh; padding-bottom:110px; }
+
+.coredesk-header-shell{
+  position:fixed; top:16px; left:0; width:100%; z-index:998;
+  display:flex; justify-content:center; pointer-events:none;
+}
+.coredesk-header-fixed{
+  width:calc(100% - 32px); max-width:1000px; height:80px;
+  background:rgba(255,255,255,0.96); border:1px solid var(--border);
+  border-radius:20px; box-shadow:0 12px 28px rgba(14,50,85,0.08);
+  backdrop-filter:blur(10px); pointer-events:auto;
+}
+.coredesk-header-content{
+  height:80px; display:flex; align-items:center; justify-content:space-between; padding:0 26px;
+}
+.coredesk-header-brand{ color:var(--navy); font-size:1.55rem; font-weight:800; display:flex; align-items:baseline; gap:8px; }
+.coredesk-header-brand small{ font-size:0.6rem; font-weight:700; color:var(--text3); letter-spacing:.08em; text-transform:uppercase; border:1px solid var(--border3); padding:3px 8px; border-radius:100px; }
+.coredesk-header-right{ display:flex; align-items:center; gap:14px; }
+.coredesk-header-divider{ width:1px; height:24px; background:#D8E0EA; }
+.coredesk-header-timer{ color:var(--text2); font-size:0.92rem; font-weight:700; white-space:nowrap; }
+.coredesk-header-spacer{ height:116px; }
+
+.chat-shell{ max-width:820px; margin:0 auto; padding:0 16px; }
+
+.session-card{
+  background:var(--card); border:1px solid var(--border2);
+  border-radius:18px; box-shadow:0 12px 30px rgba(14,50,85,0.08);
+  padding:20px 22px 18px; margin-bottom:18px;
+}
+.session-card-title{ color:var(--navy); font-size:1rem; font-weight:800; margin-bottom:12px; }
+.session-card-row{ margin-bottom:8px; font-size:0.96rem; }
+.session-card-label{ color:var(--text2); font-weight:700; }
+.session-card-value{ color:var(--text); font-weight:600; }
+.session-analysis{
+  margin-top:12px; background:#EAF2FF; border:1px solid #CFE0FA;
+  color:#1F3A63; border-radius:12px; padding:12px 14px; font-size:0.88rem; line-height:1.65;
+}
+.session-analysis b{ color:var(--navy); }
+.btn-finalizar{
+  display:block; margin:14px auto 0; width:min(280px,100%); height:46px;
+  background:linear-gradient(135deg,var(--red2) 0%,var(--red) 100%);
+  color:#fff; border:none; border-radius:999px; font-weight:800; cursor:pointer;
+  box-shadow:0 10px 22px rgba(255,75,75,0.22);
+  transition:transform .15s;
+}
+.btn-finalizar:hover{ transform:translateY(-1px); }
+
+.chat-log{ display:flex; flex-direction:column; gap:12px; margin-bottom:20px; }
+
+.msg-row{ display:flex; gap:10px; align-items:flex-start; }
+.msg-row.user{ justify-content:flex-end; }
+.msg-avatar{
+  width:34px; height:34px; border-radius:10px; flex-shrink:0;
+  background:var(--orange2); display:flex; align-items:center; justify-content:center; overflow:hidden;
+}
+.msg-avatar img{ width:100%; height:100%; object-fit:cover; }
+.msg-bubble{
+  max-width:min(600px,78%); border-radius:16px; padding:14px 16px; font-size:0.96rem; line-height:1.65;
+}
+.msg-row.assistant .msg-bubble{ background:#fff; border:1px solid #E7EDF5; box-shadow:0 6px 14px rgba(14,50,85,0.04); }
+.msg-row.user .msg-bubble{ background:var(--user-bg); border:1px solid var(--border3); }
+.msg-bubble p{ margin:0 0 8px; }
+.msg-bubble p:last-child{ margin-bottom:0; }
+.msg-bubble ul{ margin:4px 0 10px 18px; padding:0; }
+.msg-bubble li{ margin-bottom:5px; }
+.msg-bubble .msg-h{ font-weight:800; color:var(--navy); margin:10px 0 6px; }
+.msg-bubble .msg-h:first-child{ margin-top:0; }
+.msg-bubble strong{ color:var(--navy); }
+
+.typing-row .msg-bubble{ display:flex; align-items:center; gap:6px; padding:14px 18px; color:var(--text2); font-size:0.9rem; }
+.typing-dots{ display:inline-flex; gap:4px; }
+.typing-dots span{ width:6px; height:6px; border-radius:50%; background:var(--text3); animation:typingBounce 1s infinite; }
+.typing-dots span:nth-child(2){ animation-delay:.15s; }
+.typing-dots span:nth-child(3){ animation-delay:.3s; }
+@keyframes typingBounce{ 0%,60%,100%{ transform:translateY(0); opacity:.5 } 30%{ transform:translateY(-4px); opacity:1 } }
+
+.chat-input-bar{
+  position:fixed; left:0; right:0; bottom:16px; z-index:999;
+  display:flex; justify-content:center; padding:0 16px;
+}
+.chat-input-form{
+  width:100%; max-width:820px; display:flex; align-items:center; gap:10px;
+  background:#fff; border:1px solid var(--border2); border-radius:26px;
+  box-shadow:0 10px 28px rgba(14,50,85,0.12); padding:8px 8px 8px 18px;
+}
+.chat-input-form input{
+  flex:1; border:none; outline:none; font-size:1rem; background:transparent; color:var(--text);
+  font-family:inherit;
+}
+.chat-input-form input::placeholder{ color:var(--text3); }
+.btn-send{
+  width:44px; height:44px; border-radius:999px; border:none; flex-shrink:0;
+  background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%);
+  color:#fff; font-size:1.1rem; cursor:pointer; box-shadow:0 10px 18px rgba(14,50,85,0.18);
+  transition:transform .15s;
+}
+.btn-send:hover{ transform:translateY(-1px); }
+
+.scroll-top-btn{
+  position:fixed; right:22px; bottom:86px; width:42px; height:42px; border-radius:999px;
+  background:linear-gradient(135deg,var(--orange2) 0%,var(--orange) 100%); color:#fff;
+  text-decoration:none; display:flex; align-items:center; justify-content:center;
+  font-size:1.1rem; font-weight:800; box-shadow:0 12px 24px rgba(255,122,0,0.24); z-index:1000;
+  opacity:0; pointer-events:none; transition:opacity .2s;
+}
+.scroll-top-btn.show{ opacity:1; pointer-events:auto; }
+
+/* ============ CLOSING OVERLAY ============ */
+.closing-overlay{
+  position:fixed; inset:0; background:rgba(15,23,42,0.3); backdrop-filter:blur(3px);
+  z-index:9999; display:flex; align-items:center; justify-content:center;
+}
+.closing-modal{
+  width:min(92vw,340px); background:#fff; border:1px solid #E5ECF4; border-radius:22px;
+  box-shadow:0 18px 40px rgba(14,50,85,0.16); padding:28px 24px; text-align:center;
+}
+.closing-title{ color:var(--navy); font-size:1.1rem; font-weight:800; margin:12px 0 6px; }
+.closing-subtitle{ color:var(--text2); font-size:0.92rem; font-weight:600; }
+.closing-spinner{
+  width:44px; height:44px; margin:0 auto; border-radius:999px;
+  border:4px solid #E8EEF5; border-top:4px solid var(--orange2);
+  animation:coredeskSpin .8s linear infinite;
+}
+@keyframes coredeskSpin{ from{transform:rotate(0)} to{transform:rotate(360deg)} }
+
+@media(max-width:640px){
+  .coredesk-header-fixed{ height:66px; }
+  .coredesk-header-content{ height:66px; padding:0 16px; }
+  .coredesk-header-brand{ font-size:1.15rem; }
+  .coredesk-header-spacer{ height:96px; }
+  .msg-bubble{ max-width:86%; }
+  .session-card{ padding:16px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ LOGIN VIEW ═══════════ -->
+<div id="loginView">
+  <div class="login-wrapper">
+    <img src="logo.png" alt="CoreDesk" class="login-logo">
+    <p class="login-subtitle">Ingresa tus datos para comenzar una sesión de soporte técnico con CoreDesk.</p>
+    <form id="loginForm" class="login-form">
+      <div class="field-label">Nombre completo</div>
+      <input type="text" id="fNombre" placeholder="Escribe tu nombre completo" autocomplete="name">
+      <div class="field-label">Correo electrónico</div>
+      <input type="email" id="fCorreo" placeholder="ejemplo@empresa.com" autocomplete="email">
+      <div class="field-label">Empresa</div>
+      <input type="text" id="fEmpresa" placeholder="Ej. Nova Dynamics, Kaira Software, Cedar & Co" autocomplete="organization">
+      <div class="login-warning" id="loginWarning"></div>
+      <button type="submit" class="btn-start">Comenzar soporte</button>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════ CHAT VIEW ═══════════ -->
+<div id="chatView" style="display:none">
+  <div class="coredesk-header-shell">
+    <div class="coredesk-header-fixed">
+      <div class="coredesk-header-content">
+        <div class="coredesk-header-brand">CoreDesk Support <small>Demo</small></div>
+        <div class="coredesk-header-right">
+          <span class="coredesk-header-divider"></span>
+          <span class="coredesk-header-timer" id="sessionTimer">⏱ 00:00 en sesión</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="coredesk-header-spacer"></div>
+
+  <div class="chat-shell">
+    <div class="session-card">
+      <div class="session-card-title">Sesión activa</div>
+      <div class="session-card-row"><span class="session-card-label">👤 Atendiendo a:</span> <span class="session-card-value" id="scNombre"></span></div>
+      <div class="session-card-row"><span class="session-card-label">🏢 Empresa:</span> <span class="session-card-value" id="scEmpresa"></span></div>
+      <div class="session-card-row"><span class="session-card-label">📧 Correo:</span> <span class="session-card-value" id="scCorreo"></span></div>
+      <div class="session-analysis" id="sessionAnalysis" style="display:none"></div>
+      <button class="btn-finalizar" id="btnFinalizar" type="button">Finalizar este chat</button>
+    </div>
+
+    <div class="chat-log" id="chatLog"></div>
+  </div>
+
+  <div class="chat-input-bar">
+    <form id="chatForm" class="chat-input-form">
+      <input type="text" id="chatInput" placeholder="Escribe aquí" autocomplete="off">
+      <button type="submit" class="btn-send" aria-label="Enviar">➤</button>
+    </form>
+  </div>
+
+  <a href="#" class="scroll-top-btn" id="scrollTopBtn" title="Subir al inicio">↑</a>
+</div>
+
+<!-- ═══════════ CLOSING OVERLAY ═══════════ -->
+<div id="closingOverlay" class="closing-overlay" style="display:none">
+  <div class="closing-modal">
+    <div class="closing-spinner"></div>
+    <div class="closing-title">Cerrando el chat</div>
+    <div class="closing-subtitle">Gracias por usar CoreDesk</div>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   PORTFOLIO DEMO NOTICE
+   This build never calls the real Gemini API (no key exists
+   here). Ticket classification is ported 1:1 from the real
+   app's keyword logic; the reply text itself is generated
+   from a local template library instead of an LLM call.
+   Everything runs in the browser — nothing is sent anywhere.
+========================================================= */
+
+// ── State ───────────────────────────────────────────────
+let S = {
+  user: null,           // {nombre, correo, empresa, inicio}
+  messages: [],          // {role:'user'|'assistant', html:'...'}
+  analysis: null,        // classification of the current ticket
+  welcomed: false,
+  timerHandle: null,
+};
+
+// ── Utils ───────────────────────────────────────────────
+function normalizar(t){ return (t||'').toLowerCase().trim().replace(/\s+/g,' '); }
+function limpiarTexto(t){ return (t||'').trim().replace(/\s+/g,' '); }
+function limpiarCorreo(t){ return (t||'').trim().replace(/\s+/g,'').toLowerCase(); }
+function correoValido(c){ return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(c); }
+function fmtTiempo(segTotales){
+  const m = Math.floor(segTotales/60), s = segTotales%60;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+function escapeHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── Keyword classification (ported 1:1 from the real app) ─
+const PALABRAS_ESCALADO_INMEDIATO = [
+  "pantalla rota","se rompio la pantalla","pantalla quebrada","quebrada",
+  "huele a quemado","olor a quemado","equipo quemado",
+  "motherboard","placa madre","fuente dañada","fuente danada",
+  "ram dañada","ram danada","aumentar ram","cambiar ram",
+  "cambiar disco","disco duro roto","ssd roto","hace ruido el disco",
+  "disco dañado","disco danado","liquido derramado","se mojo",
+  "se cayó","se cayo","golpe fuerte","pieza rota","carcasa rota",
+  "pantalla estrellada","bisagra rota","tecla rota"
+];
+const PALABRAS_ESCALAR_SI_FALLA = [
+  "no enciende","equipo no enciende","no arranca","equipo muerto",
+  "pantalla azul","pantallazo azul constante","blue screen",
+  "equipo se apaga solo","se apaga solo","se reinicia",
+  "sin internet","no tengo internet","outlook no abre","no puedo entrar",
+  "no tengo acceso","correo no funciona","vpn no conecta",
+  "no puedo conectarme","error constante","equipo muy lento",
+  "muy lento","se traba mucho","impresora no imprime","luz roja parpadeante",
+  "no da imagen","no prende bien","no inicia windows"
+];
+const PALABRAS_MEDIAS = [
+  "impresora","audio","camara","cámara","office","excel","word",
+  "instalar programa","instalar software","configurar","microfono","micrófono",
+  "periférico","periferico","monitor","teclado","mouse","firma",
+  "correo","outlook","teams","zoom"
+];
+const PALABRAS_BAJAS = [
+  "duda","consulta","como","cómo","configurar firma",
+  "cambiar fondo","personalizar","quiero saber","informacion","información"
+];
+
+function analizarTicket(textoUsuario){
+  const t = normalizar(textoUsuario);
+  const any = (arr) => arr.some(p => t.includes(p));
+
+  let categoria = "Software", prioridad = "Media";
+  let escaladoInmediato = false, escalarSiFalla = false;
+  let motivo = "Caso general pendiente de validación.";
+
+  if (any(PALABRAS_ESCALADO_INMEDIATO)) {
+    categoria = "Hardware"; prioridad = "Crítica";
+    escaladoInmediato = true; escalarSiFalla = false;
+    motivo = "Se detectó un caso físico o presencial que requiere intervención técnica directa.";
+  } else if (any(PALABRAS_ESCALAR_SI_FALLA)) {
+    categoria = "Soporte general"; prioridad = "Alta";
+    escaladoInmediato = false; escalarSiFalla = true;
+    motivo = "Primero pueden intentarse pruebas remotas seguras; si no funcionan, debe escalarse.";
+  } else if (any(PALABRAS_MEDIAS)) {
+    categoria = "Soporte general"; prioridad = "Media";
+    motivo = "Caso operativo que probablemente puede resolverse por guía remota.";
+  } else if (any(PALABRAS_BAJAS)) {
+    categoria = "Consulta"; prioridad = "Baja";
+    motivo = "Se detectó una solicitud informativa o de baja urgencia.";
+  }
+
+  return { categoria, prioridad, escaladoInmediato, escalarSiFalla, motivo };
+}
+
+// ── Simulated reply generator (template-based, no real AI) ─
+function tema(t){
+  if (/impresora/.test(t)) return 'impresora';
+  if (/(internet|vpn|wifi|red|no puedo conectarme)/.test(t)) return 'red';
+  if (/(outlook|correo)/.test(t)) return 'correo';
+  if (/(no enciende|no arranca|equipo muerto|no prende)/.test(t)) return 'encendido';
+  if (/(pantalla azul|blue screen|se reinicia|se apaga solo)/.test(t)) return 'pantallazo';
+  if (/(lento|se traba)/.test(t)) return 'lento';
+  if (/(camara|cámara|microfono|micrófono|teams|zoom)/.test(t)) return 'videollamadas';
+  if (/firma/.test(t)) return 'firma';
+  if (/(instalar programa|instalar software)/.test(t)) return 'instalacion';
+  if (/(fondo|personalizar)/.test(t)) return 'personalizacion';
+  return 'generico';
+}
+
+const PASOS = {
+  impresora: [
+    "Revisa que la impresora esté encendida y el cable de corriente bien conectado.",
+    "Verifica que el cable USB o la conexión de red de la impresora esté firme.",
+    "En Windows, presiona la tecla Windows, escribe <strong>Impresoras y escáneres</strong> y da Enter.",
+    "Confirma que tu impresora aparezca marcada como predeterminada.",
+    "Da doble clic sobre la impresora, abre la cola de impresión y cancela cualquier trabajo atorado.",
+    "Intenta imprimir una página de prueba desde esa misma ventana."
+  ],
+  red: [
+    "En la esquina inferior derecha de la pantalla, revisa el ícono de red (Wi-Fi o cable).",
+    "Si usas Wi-Fi, da clic en el ícono, selecciona tu red y elige <strong>Desconectar</strong>, luego vuelve a conectarte.",
+    "Si usas cable, revisa que esté bien conectado en ambos extremos.",
+    "Presiona la tecla Windows, escribe <strong>cmd</strong>, abre la Símbolo del sistema y escribe <code>ipconfig /release</code> seguido de Enter, luego <code>ipconfig /renew</code>.",
+    "Si usas VPN, cierra la aplicación de VPN por completo y vuelve a abrirla para reconectar.",
+    "Reinicia el router si tienes acceso a él, esperando 30 segundos antes de volver a encenderlo."
+  ],
+  correo: [
+    "Cierra Outlook por completo (verifica que no quede en la barra de tareas oculta).",
+    "Confirma que tienes conexión a internet abriendo cualquier página web.",
+    "Vuelve a abrir Outlook y espera unos segundos a que sincronice.",
+    "Si te pide contraseña, presiona la tecla Windows, escribe <strong>Administrador de credenciales</strong>, entra a <strong>Credenciales de Windows</strong> y elimina las que digan Outlook u Office para que te las vuelva a pedir.",
+    "Verifica que tu usuario y contraseña sean los correctos al iniciar sesión de nuevo."
+  ],
+  encendido: [
+    "Revisa que el cable de corriente esté conectado tanto al equipo como al contacto de pared.",
+    "Si es laptop, verifica que la luz de carga encienda al conectar el cargador.",
+    "Prueba con otro contacto eléctrico, por si el actual no tiene corriente.",
+    "Mantén presionado el botón de encendido durante 10 segundos para forzar un apagado completo, suelta y espera 5 segundos.",
+    "Vuelve a presionar el botón de encendido una sola vez y observa si encienden luces o ventiladores."
+  ],
+  pantallazo: [
+    "Anota el mensaje o código de error que aparece en la pantalla azul, si alcanzas a leerlo.",
+    "Mantén presionado el botón de encendido 10 segundos para apagar el equipo por completo.",
+    "Espera 10 segundos y enciéndelo de nuevo con una sola pulsación.",
+    "Si el equipo llega a iniciar, guarda tu trabajo abierto y evita instalar programas nuevos por ahora.",
+    "Si el reinicio se repite más de una vez, evita seguir usándolo hasta que un técnico lo revise."
+  ],
+  lento: [
+    "Guarda tu trabajo y cierra las pestañas o programas que no estés usando en este momento.",
+    "Presiona <strong>Ctrl + Shift + Esc</strong> para abrir el Administrador de tareas.",
+    "En la pestaña Procesos, ordena por columna CPU o Memoria y observa si algo consume demasiado.",
+    "Reinicia el equipo por completo (no solo cerrar sesión) para liberar memoria.",
+    "Evita tener más de 8-10 pestañas abiertas al mismo tiempo en el navegador."
+  ],
+  videollamadas: [
+    "Presiona la tecla Windows, escribe <strong>Configuración de privacidad de cámara</strong> y ábrelo.",
+    "Verifica que la opción <strong>Acceso a la cámara</strong> esté activada, y repite el paso para <strong>Micrófono</strong>.",
+    "Dentro de Teams o Zoom, entra a Configuración → Dispositivos y confirma que estén seleccionados la cámara y el micrófono correctos.",
+    "Cierra por completo la aplicación (Teams/Zoom) y vuelve a abrirla.",
+    "Si usas audífonos o cámara externa, desconéctalos y vuelve a conectarlos en otro puerto USB."
+  ],
+  firma: [
+    "Abre Outlook y ve a Archivo → Opciones → Correo.",
+    "Da clic en el botón <strong>Firmas...</strong>",
+    "Presiona <strong>Nueva</strong>, ponle un nombre a tu firma y escribe el texto que quieres que aparezca.",
+    "En la parte derecha, elige esa firma para <strong>Nuevos mensajes</strong> y para <strong>Respuestas/reenvíos</strong>.",
+    "Da clic en Aceptar y prueba redactando un correo nuevo para confirmar que aparezca."
+  ],
+  instalacion: [
+    "Por política de la empresa, la instalación de programas normalmente la realiza el equipo de IT para mantener el equipo seguro.",
+    "Cuéntame exactamente qué programa necesitas instalar y para qué lo vas a usar.",
+    "Con esa información puedo registrar la solicitud para que un técnico la instale o te dé acceso temporal.",
+    "Mientras tanto, evita descargar instaladores de páginas que no sean oficiales."
+  ],
+  personalizacion: [
+    "Da clic derecho en cualquier espacio vacío del escritorio y elige <strong>Personalizar</strong>.",
+    "Entra a la sección <strong>Fondo</strong> y selecciona la imagen o color que prefieras.",
+    "Si quieres cambiar el tema completo, revisa la sección <strong>Temas</strong> en esa misma ventana.",
+    "Los cambios se aplican de inmediato, no necesitas reiniciar el equipo."
+  ],
+  generico: [
+    "Guarda cualquier trabajo abierto por precaución.",
+    "Cierra y vuelve a abrir el programa donde ocurre el problema.",
+    "Si el problema persiste, reinicia el equipo por completo.",
+    "Anota el mensaje de error exacto (si aparece alguno) para poder ayudarte mejor."
+  ]
+};
+
+function construirEncabezado(analisis){
+  if (analisis.escaladoInmediato){
+    return `<div class="msg-h">🟠 Este caso fue marcado para escalamiento técnico inmediato</div>
+      <p><strong>Prioridad:</strong> ${analisis.prioridad}</p>
+      <p><strong>Motivo:</strong> ${analisis.motivo}</p>`;
+  }
+  if (analisis.escalarSiFalla){
+    return `<div class="msg-h">🟡 Este caso primero intentará resolverse por chat</div>
+      <p><strong>Prioridad:</strong> ${analisis.prioridad}</p>
+      <p><strong>Nota:</strong> si las pruebas iniciales no funcionan, el caso deberá escalarse.</p>`;
+  }
+  return '';
+}
+
+function construirCuerpoRespuesta(nombre, textoUsuario, analisis){
+  const t = normalizar(textoUsuario);
+  const temaDetectado = tema(t);
+  const pasos = PASOS[temaDetectado] || PASOS.generico;
+
+  if (analisis.escaladoInmediato){
+    return `
+      <div class="msg-h">🟡 Qué está pasando</div>
+      <p>Por lo que describes, ${nombre.split(' ')[0]}, esto parece un problema físico del equipo que no es seguro ni posible resolver de forma remota.</p>
+      <div class="msg-h">🟢 Qué debes hacer paso a paso</div>
+      <ul>
+        <li>Desconecta el equipo de la corriente eléctrica si notas algo anormal (olor, ruido, humo).</li>
+        <li>No intentes abrir el equipo ni retirar piezas tú mismo.</li>
+        <li>Deja el equipo en un lugar seguro, sin moverlo más de lo necesario.</li>
+        <li>Un técnico de soporte se pondrá en contacto para agendar una revisión presencial.</li>
+      </ul>
+      <div class="msg-h">🔴 Qué no debes hacer</div>
+      <ul>
+        <li>No sigas usando el equipo si notas riesgo eléctrico.</li>
+        <li>No intentes repararlo por tu cuenta.</li>
+      </ul>
+      <div class="msg-h">🔵 Qué necesito que me confirmes al final</div>
+      <p>¿En qué ubicación se encuentra el equipo ahora mismo, para coordinar la visita técnica?</p>`;
+  }
+
+  const introSeguimiento = analisis.escalarSiFalla
+    ? `Vamos a intentar resolverlo por aquí antes de escalarlo, ${nombre.split(' ')[0]}.`
+    : `Con gusto te ayudo con eso, ${nombre.split(' ')[0]}.`;
+
+  return `
+    <div class="msg-h">🟡 Qué está pasando</div>
+    <p>${introSeguimiento}</p>
+    <div class="msg-h">🟢 Qué debes hacer paso a paso</div>
+    <ul>${pasos.map(p=>`<li>${p}</li>`).join('')}</ul>
+    <div class="msg-h">🔵 Qué necesito que me confirmes al final</div>
+    <p>Prueba estos pasos y cuéntame si el problema se resolvió o si sigue igual.</p>`;
+}
+
+function construirRespuestaSeguimiento(nombre, textoUsuario){
+  const t = normalizar(textoUsuario);
+  if (/(gracias|listo|ya funciono|ya quedo|resuelto|perfecto|excelente|ya sirvio|todo bien)/.test(t)){
+    return `<p>¡Qué bueno, ${nombre.split(' ')[0]}! 🎉 Me alegra que se haya resuelto. Si necesitas algo más, aquí estoy — o puedes dar clic en <strong>Finalizar este chat</strong> cuando gustes.</p>`;
+  }
+  if (/(no funciono|no sirvio|sigue igual|sigue el problema|no jalo|no resolvio|no se resolvio)/.test(t)){
+    return `<div class="msg-h">🟠 Vamos a escalar tu caso</div>
+      <p>Entendido, ${nombre.split(' ')[0]}. Ya intentamos la solución inicial y el problema continúa, así que esto requiere revisión de un técnico.</p>
+      <p>Voy a dejar tu caso registrado con la información de esta conversación para que un compañero de IT le dé seguimiento directo.</p>`;
+  }
+  const temaDetectado = tema(t);
+  const pasos = (PASOS[temaDetectado] || PASOS.generico).slice(0,3);
+  return `
+    <p>Entendido. Probemos un par de cosas más:</p>
+    <ul>${pasos.map(p=>`<li>${p}</li>`).join('')}</ul>
+    <p>Cuéntame cómo te fue con esto.</p>`;
+}
+
+function construirResumenAnalisis(a){
+  return `
+    <strong>🏷️ Clasificación del ticket</strong><br>
+    Categoría: <b>${a.categoria}</b> &nbsp;·&nbsp; Prioridad: <b>${a.prioridad}</b><br>
+    Escalado inmediato: <b>${a.escaladoInmediato?'Sí':'No'}</b> &nbsp;·&nbsp; Escalar si falla: <b>${a.escalarSiFalla?'Sí':'No'}</b><br>
+    Motivo: ${a.motivo}`;
+}
+
+// ── Rendering ───────────────────────────────────────────
+function addMessage(role, html){
+  S.messages.push({role, html});
+  renderChatLog();
+}
+function renderChatLog(){
+  const log = document.getElementById('chatLog');
+  log.innerHTML = S.messages.map(m => {
+    if (m.role === 'assistant'){
+      return `<div class="msg-row assistant"><div class="msg-avatar"><img src="bot.png" alt=""></div><div class="msg-bubble">${m.html}</div></div>`;
+    }
+    return `<div class="msg-row user"><div class="msg-bubble">${m.html}</div></div>`;
+  }).join('');
+  scrollToLatest();
+}
+function scrollToLatest(){
+  requestAnimationFrame(()=>{
+    window.scrollTo({ top: document.body.scrollHeight, behavior:'smooth' });
+  });
+}
+function showTyping(){
+  const log = document.getElementById('chatLog');
+  const row = document.createElement('div');
+  row.className = 'msg-row assistant typing-row';
+  row.id = 'typingRow';
+  row.innerHTML = `<div class="msg-avatar"><img src="bot.png" alt=""></div>
+    <div class="msg-bubble">CoreDesk AI está analizando tu problema
+      <span class="typing-dots"><span></span><span></span><span></span></span>
+    </div>`;
+  log.appendChild(row);
+  scrollToLatest();
+}
+function hideTyping(){
+  document.getElementById('typingRow')?.remove();
+}
+
+function updateSessionCard(){
+  document.getElementById('scNombre').textContent = S.user.nombre;
+  document.getElementById('scEmpresa').textContent = S.user.empresa;
+  document.getElementById('scCorreo').textContent = S.user.correo;
+  const box = document.getElementById('sessionAnalysis');
+  if (S.analysis){
+    box.style.display = 'block';
+    box.innerHTML = construirResumenAnalisis(S.analysis);
+  } else {
+    box.style.display = 'none';
+  }
+}
+
+// ── Timer ───────────────────────────────────────────────
+function startTimer(){
+  clearInterval(S.timerHandle);
+  S.timerHandle = setInterval(()=>{
+    const segundos = Math.floor((Date.now() - S.user.inicio)/1000);
+    document.getElementById('sessionTimer').textContent = `⏱ ${fmtTiempo(segundos)} en sesión`;
+  }, 1000);
+}
+
+// ── Login flow ──────────────────────────────────────────
+document.getElementById('loginForm').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const nombre = limpiarTexto(document.getElementById('fNombre').value);
+  const correo = limpiarCorreo(document.getElementById('fCorreo').value);
+  const empresa = limpiarTexto(document.getElementById('fEmpresa').value);
+  const warn = document.getElementById('loginWarning');
+
+  if (!nombre || !correo || !empresa){
+    warn.textContent = 'Por favor completa todos los campos para continuar.';
+    warn.style.display = 'block';
+    return;
+  }
+  if (!correoValido(correo)){
+    warn.textContent = 'Por favor escribe un correo electrónico válido.';
+    warn.style.display = 'block';
+    return;
+  }
+  warn.style.display = 'none';
+
+  S.user = { nombre, correo, empresa, inicio: Date.now() };
+  S.messages = [];
+  S.analysis = null;
+  S.welcomed = false;
+
+  document.getElementById('loginView').style.display = 'none';
+  document.getElementById('chatView').style.display = 'block';
+  updateSessionCard();
+  startTimer();
+  enviarBienvenidaSiFalta();
+  window.scrollTo(0,0);
+});
+
+function enviarBienvenidaSiFalta(){
+  if (S.welcomed) return;
+  const nombreCorto = S.user.nombre.split(' ')[0];
+  addMessage('assistant', `<p>¡Hola <strong>${escapeHtml(nombreCorto)}</strong>! 👋 Bienvenido al soporte técnico de CoreDesk. Por favor, describe el problema que tienes con tu equipo y te ayudaremos a resolverlo.</p>`);
+  S.welcomed = true;
+}
+
+// ── Chat flow ───────────────────────────────────────────
+document.getElementById('chatForm').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const input = document.getElementById('chatInput');
+  const texto = input.value.trim();
+  if (!texto) return;
+  input.value = '';
+
+  addMessage('user', `<p>${escapeHtml(texto)}</p>`);
+
+  const esPrimerMensajeTicket = S.analysis === null;
+  showTyping();
+
+  setTimeout(()=>{
+    hideTyping();
+
+    let cuerpoHtml;
+    if (esPrimerMensajeTicket){
+      S.analysis = analizarTicket(texto);
+      updateSessionCard();
+      cuerpoHtml = construirEncabezado(S.analysis) + construirCuerpoRespuesta(S.user.nombre, texto, S.analysis);
+    } else {
+      cuerpoHtml = construirRespuestaSeguimiento(S.user.nombre, texto);
+    }
+
+    addMessage('assistant', cuerpoHtml);
+  }, 900 + Math.random()*700);
+});
+
+// ── Finalizar / cerrar chat ─────────────────────────────
+document.getElementById('btnFinalizar').addEventListener('click', ()=>{
+  document.getElementById('closingOverlay').style.display = 'flex';
+  setTimeout(()=>{
+    document.getElementById('closingOverlay').style.display = 'none';
+    clearInterval(S.timerHandle);
+    S = { user:null, messages:[], analysis:null, welcomed:false, timerHandle:null };
+    document.getElementById('chatView').style.display = 'none';
+    document.getElementById('loginView').style.display = 'flex';
+    document.getElementById('loginForm').reset();
+    document.getElementById('loginWarning').style.display = 'none';
+    window.scrollTo(0,0);
+  }, 900);
+});
+
+// ── Scroll-to-top button ────────────────────────────────
+const scrollBtn = document.getElementById('scrollTopBtn');
+window.addEventListener('scroll', ()=>{
+  scrollBtn.classList.toggle('show', window.scrollY > 400);
+}, { passive:true });
+scrollBtn.addEventListener('click', (e)=>{
+  e.preventDefault();
+  window.scrollTo({ top:0, behavior:'smooth' });
+});
+</script>
+</body>
+</html>

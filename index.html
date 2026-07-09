@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jared Rojas — IT Operations & Software Developer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f9f7f4;
+  --bg2: #f0ede8;
+  --bg3: #e8e4de;
+  --white: #ffffff;
+  --text: #1a1814;
+  --text2: #6b6560;
+  --text3: #a8a49f;
+  --accent-warm: #c8611a;
+  --line: rgba(26,24,20,0.08);
+  --line2: rgba(26,24,20,0.16);
+  --radius: 20px;
+  --radius-sm: 12px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* Cursor — rápido, sin lerp */
+.cursor {
+  position: fixed;
+  width: 10px; height: 10px;
+  background: var(--text);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: width 0.2s, height 0.2s, background 0.2s, border 0.2s;
+}
+.cursor.hovering {
+  width: 36px; height: 36px;
+  background: transparent;
+  border: 1.5px solid rgba(26,24,20,0.35);
+}
+
+/* Nav */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 56px;
+  transition: background 0.4s, box-shadow 0.4s;
+}
+nav.scrolled {
+  background: rgba(249,247,244,0.88);
+  backdrop-filter: blur(24px);
+  box-shadow: 0 1px 0 var(--line);
+}
+.nav-logo {
+  font-family: 'Instrument Serif', serif;
+  font-size: 18px;
+  color: var(--text);
+  text-decoration: none;
+}
+.nav-links { display: flex; gap: 36px; list-style: none; align-items: center; }
+.nav-links a {
+  font-size: 13px;
+  color: var(--text2);
+  text-decoration: none;
+  transition: color 0.2s;
+  cursor: none;
+}
+.nav-links a:hover { color: var(--text); }
+.nav-cta {
+  background: var(--text) !important;
+  color: var(--bg) !important;
+  padding: 8px 20px;
+  border-radius: 100px;
+  font-weight: 500 !important;
+  transition: opacity 0.2s !important;
+}
+.nav-cta:hover { opacity: 0.8 !important; color: var(--bg) !important; }
+
+/* Hero */
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 80px;
+  align-items: center;
+  padding: 120px 56px 80px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+.hero-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.1s forwards;
+}
+.hero-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34,197,94,0.2);
+  animation: pulse 2s infinite;
+}
+.hero-eyebrow span {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: var(--text2);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.hero-name {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(52px, 7vw, 96px);
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+  margin-bottom: 12px;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.2s forwards;
+}
+.hero-title {
+  font-size: clamp(16px, 2vw, 22px);
+  font-weight: 300;
+  color: var(--text2);
+  margin-bottom: 32px;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.3s forwards;
+}
+.hero-title em {
+  font-style: italic;
+  font-family: 'Instrument Serif', serif;
+  color: var(--accent-warm);
+  font-size: 1.1em;
+}
+.hero-desc {
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--text2);
+  line-height: 1.75;
+  max-width: 520px;
+  margin-bottom: 44px;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.4s forwards;
+}
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  opacity: 0;
+  animation: fadeUp 0.6s 0.5s forwards;
+}
+.btn-solid {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--text);
+  color: var(--bg);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 13px 28px;
+  border-radius: 100px;
+  border: none;
+  text-decoration: none;
+  cursor: none;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.btn-solid:hover { opacity: 0.85; transform: translateY(-1px); }
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  padding: 13px 28px;
+  border-radius: 100px;
+  border: 1px solid var(--line2);
+  text-decoration: none;
+  cursor: none;
+  transition: background 0.2s, transform 0.2s;
+}
+.btn-outline:hover { background: var(--bg2); transform: translateY(-1px); }
+
+/* Photo card */
+.hero-right { opacity: 0; animation: fadeUp 0.7s 0.35s forwards; }
+.photo-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 4px 40px rgba(26,24,20,0.06);
+}
+.photo-placeholder {
+  aspect-ratio: 3/4;
+  background: var(--bg3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.photo-placeholder::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 100%, rgba(200,97,26,0.07), transparent),
+    radial-gradient(ellipse 60% 40% at 20% 20%, rgba(26,79,200,0.05), transparent);
+}
+.photo-icon {
+  width: 72px; height: 72px;
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.photo-icon svg { width: 32px; height: 32px; stroke: var(--text3); fill: none; stroke-width: 1.5; }
+.photo-placeholder p {
+  font-size: 12px;
+  color: var(--text3);
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  position: relative;
+}
+.photo-hint { font-size: 11px !important; opacity: 0.6; }
+.photo-caption {
+  padding: 20px 24px;
+  border-top: 1px solid var(--line);
+}
+.photo-caption strong { display: block; font-size: 15px; font-weight: 500; margin-bottom: 2px; }
+.photo-caption span { font-size: 13px; color: var(--text2); font-weight: 300; }
+
+/* Stats */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--line);
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  margin: 0 0 0;
+}
+.stat-item {
+  background: var(--bg);
+  padding: 40px 56px;
+}
+.stat-number {
+  font-family: 'Instrument Serif', serif;
+  font-size: 48px;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  display: block;
+}
+.stat-label { font-size: 13px; color: var(--text2); font-weight: 300; }
+
+/* Sections */
+section { padding: 100px 56px; max-width: 1400px; margin: 0 auto; }
+.section-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.section-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(36px, 4vw, 56px);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  margin-bottom: 64px;
+}
+.section-title em { font-style: italic; color: var(--text2); }
+
+/* About */
+.about-layout { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 80px; align-items: start; }
+.about-body p { font-size: 17px; font-weight: 300; color: var(--text2); line-height: 1.8; margin-bottom: 20px; }
+.about-body p strong { color: var(--text); font-weight: 500; }
+.about-body p:last-child { margin-bottom: 0; }
+.skills-col { display: flex; flex-direction: column; gap: 8px; }
+.skill-group {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 18px 20px;
+  transition: border-color 0.2s;
+}
+.skill-group:hover { border-color: var(--line2); }
+.skill-group-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.skill-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.skill-tag { font-size: 12px; color: var(--text2); background: var(--bg2); border-radius: 6px; padding: 3px 10px; }
+
+/* Experience */
+.exp-list { display: flex; flex-direction: column; }
+.exp-item {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 32px;
+  padding: 36px 0;
+  border-bottom: 1px solid var(--line);
+}
+.exp-item:first-child { padding-top: 0; }
+.exp-item:last-child { border-bottom: none; }
+.exp-date { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text3); padding-top: 4px; }
+.exp-company { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+.exp-role { font-size: 18px; letter-spacing: -0.02em; margin-bottom: 10px; line-height: 1.2; }
+.exp-desc { font-size: 14px; font-weight: 300; color: var(--text2); line-height: 1.7; }
+.exp-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.exp-tag { font-size: 11px; color: var(--text3); background: var(--bg2); border-radius: 6px; padding: 2px 9px; font-family: 'DM Mono', monospace; }
+
+/* Projects grid */
+.projects-wrapper { padding: 100px 56px; }
+.projects-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+
+.p-card {
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: none;
+  transition: box-shadow 0.35s, transform 0.35s, border-color 0.25s;
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+.p-card:hover {
+  box-shadow: 0 16px 56px rgba(26,24,20,0.08);
+  transform: translateY(-4px);
+  border-color: var(--line2);
+}
+.p-card.span-7  { grid-column: span 7; }
+.p-card.span-5  { grid-column: span 5; }
+.p-card.span-6  { grid-column: span 6; }
+.p-card.span-8  { grid-column: span 8; }
+.p-card.span-12 { grid-column: span 12; display: grid; grid-template-columns: 1.1fr 0.9fr; }
+
+.p-preview {
+  aspect-ratio: 4/3;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.p-card.span-12 .p-preview { aspect-ratio: auto; min-height: 280px; }
+
+.prev-library  { background: linear-gradient(145deg,#e8f0ff,#c7d8ff,#a8c0fd); }
+.prev-data     { background: linear-gradient(145deg,#e0f2fe,#bae6fd,#7dd3fc); }
+.prev-coredesk { background: linear-gradient(145deg,#fef3c7,#fde68a,#fbbf24); }
+.prev-inventory{ background: linear-gradient(145deg,#dcfce7,#bbf7d0,#86efac); }
+.prev-lab      { background: linear-gradient(145deg,#fce7f3,#fbcfe8,#f9a8d4); }
+.prev-invoice  { background: linear-gradient(145deg,#f3e8ff,#e9d5ff,#d8b4fe); }
+.prev-vantyx   { background: linear-gradient(145deg,#fff7ed,#fed7aa,#fdba74); }
+
+.mock-window {
+  width: 76%; max-width: 340px;
+  background: rgba(255,255,255,0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.9);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+  transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
+}
+.p-card:hover .mock-window { transform: scale(1.04) rotate(-0.5deg) translateY(-4px); }
+.mock-title-bar {
+  height: 32px;
+  background: rgba(255,255,255,0.8);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  display: flex; align-items: center;
+  padding: 0 12px; gap: 6px;
+}
+.m-dot { width: 8px; height: 8px; border-radius: 50%; }
+.mock-body { padding: 14px; }
+.mock-row { height: 7px; border-radius: 4px; background: rgba(0,0,0,0.08); margin-bottom: 7px; }
+.mock-row.accent { background: rgba(0,0,0,0.16); }
+.mock-row.short { width: 55%; }
+.mock-row.med { width: 75%; }
+.mock-block { height: 44px; border-radius: 8px; background: rgba(0,0,0,0.05); margin-top: 10px; }
+.mock-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+.mock-block-sm { height: 32px; border-radius: 6px; background: rgba(0,0,0,0.05); }
+
+.p-info { padding: 24px 28px 28px; }
+.p-card.span-12 .p-info { padding: 36px 40px; display: flex; flex-direction: column; justify-content: center; }
+
+.p-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 100px; border: 1px solid;
+  margin-bottom: 14px;
+}
+.badge-ux    { color:#1a4fc8; border-color:rgba(26,79,200,0.25);  background:rgba(26,79,200,0.05); }
+.badge-data  { color:#0e7490; border-color:rgba(14,116,144,0.25); background:rgba(14,116,144,0.05); }
+.badge-sys   { color:#92400e; border-color:rgba(146,64,14,0.25);  background:rgba(146,64,14,0.05); }
+.badge-it    { color:#065f46; border-color:rgba(6,95,70,0.25);    background:rgba(6,95,70,0.05); }
+.badge-web   { color:#5b21b6; border-color:rgba(91,33,182,0.25);  background:rgba(91,33,182,0.05); }
+.badge-live  { color:#166534; border-color:rgba(22,101,52,0.25);  background:rgba(22,101,52,0.06); }
+.live-dot { width:6px; height:6px; border-radius:50%; background:#22c55e; animation:pulse 2s infinite; }
+
+.p-title { font-size: 20px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 8px; }
+.p-card.span-12 .p-title { font-size: 26px; margin-bottom: 12px; }
+.p-desc { font-size: 13px; font-weight: 300; color: var(--text2); line-height: 1.7; margin-bottom: 18px; }
+.p-card.span-12 .p-desc { font-size: 14px; }
+.p-techs { display: flex; flex-wrap: wrap; gap: 6px; }
+.p-tech { font-family:'DM Mono',monospace; font-size:10px; color:var(--text3); background:var(--bg2); border-radius:5px; padding:3px 9px; }
+
+.p-arrow {
+  position: absolute; top: 18px; right: 18px;
+  width: 32px; height: 32px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transform: scale(0.8);
+  transition: opacity 0.25s, transform 0.25s;
+}
+.p-card:hover .p-arrow { opacity: 1; transform: scale(1); }
+.p-arrow svg { width: 13px; height: 13px; stroke: var(--text); fill: none; stroke-width: 2; }
+
+/* Contact */
+.contact-inner {
+  background: var(--text);
+  border-radius: 32px;
+  padding: 80px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+.contact-left .section-title { color: var(--bg); margin-bottom: 20px; }
+.contact-left .section-eyebrow { color: rgba(249,247,244,0.4); }
+.contact-subtitle { font-size: 16px; font-weight: 300; color: rgba(249,247,244,0.6); line-height: 1.7; }
+.contact-right { display: flex; flex-direction: column; gap: 12px; }
+.contact-item {
+  display: flex; align-items: center; gap: 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-sm);
+  padding: 18px 22px;
+  text-decoration: none; cursor: none;
+  transition: background 0.2s, border-color 0.2s;
+}
+.contact-item:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.18); }
+.contact-icon { width:36px; height:36px; background:rgba(255,255,255,0.1); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.contact-icon svg { width:16px; height:16px; stroke:rgba(249,247,244,0.8); fill:none; stroke-width:1.5; }
+.contact-label { font-size:11px; color:rgba(249,247,244,0.4); font-family:'DM Mono',monospace; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:2px; }
+.contact-value { font-size:14px; color:rgba(249,247,244,0.9); }
+
+footer {
+  padding: 28px 56px;
+  border-top: 1px solid var(--line);
+  display: flex; justify-content: space-between; align-items: center;
+}
+footer p { font-family:'DM Mono',monospace; font-size:11px; color:var(--text3); }
+
+.divider-full { border: none; border-top: 1px solid var(--line); }
+
+/* Reveal */
+.reveal { opacity:0; transform:translateY(28px); transition: opacity 0.85s cubic-bezier(0.16,1,0.3,1), transform 0.85s cubic-bezier(0.16,1,0.3,1); }
+.reveal.in { opacity:1; transform:none; }
+.d1{transition-delay:0.08s} .d2{transition-delay:0.16s} .d3{transition-delay:0.24s}
+.d4{transition-delay:0.32s} .d5{transition-delay:0.40s} .d6{transition-delay:0.48s}
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
+@keyframes pulse  { 0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,0.4)} 50%{box-shadow:0 0 0 5px rgba(34,197,94,0)} }
+
+/* Scroll hint */
+.scroll-hint {
+  position: absolute; bottom:36px; left:56px;
+  display:flex; align-items:center; gap:10px;
+  opacity:0; animation:fadeUp 0.6s 1.1s forwards;
+}
+.scroll-hint span { font-family:'DM Mono',monospace; font-size:10px; color:var(--text3); letter-spacing:0.15em; text-transform:uppercase; }
+.scroll-line { width:40px; height:1px; background:var(--text3); position:relative; overflow:hidden; }
+.scroll-line::after { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:var(--text); animation:slide 2s ease-in-out infinite; }
+@keyframes slide { 0%{left:-100%} 50%{left:0} 100%{left:100%} }
+
+@media (max-width:900px){
+  nav { padding:16px 24px; }
+  .nav-links { display:none; }
+  .hero { grid-template-columns:1fr; padding:100px 24px 60px; gap:48px; }
+  .hero-right { order:-1; max-width:240px; }
+  .stats-row { grid-template-columns:1fr; }
+  .stat-item { padding:28px 24px; }
+  section { padding:72px 24px; }
+  .projects-wrapper { padding:72px 24px; }
+  .about-layout { grid-template-columns:1fr; gap:40px; }
+  .exp-item { grid-template-columns:1fr; gap:4px; }
+  .p-card.span-7,.p-card.span-5,.p-card.span-6,.p-card.span-8 { grid-column:span 12; }
+  .p-card.span-12 { grid-template-columns:1fr; }
+  .p-card.span-12 .p-preview { min-height:200px; }
+  .contact-inner { grid-template-columns:1fr; padding:48px 32px; gap:40px; }
+  footer { flex-direction:column; gap:8px; text-align:center; padding:24px; }
+  .scroll-hint { display:none; }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+
+<nav id="navbar">
+  <a href="#" class="nav-logo">Jared Rojas</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#contact" class="nav-cta">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div style="position:relative;min-height:100vh;display:flex;align-items:stretch;">
+  <div class="hero">
+    <div class="hero-left">
+      <div class="hero-eyebrow">
+        <div class="hero-dot"></div>
+        <span>Available for opportunities</span>
+      </div>
+      <h1 class="hero-name">Jared<br>Rojas.</h1>
+      <p class="hero-title">IT Operations Specialist &amp; <em>Software Developer</em></p>
+      <p class="hero-desc">Pro-active IT professional with 2+ years of experience in cloud administration, IT asset management, and software development. Based in Guadalajara, México. Currently at <strong style="color:var(--text);font-weight:500">DEIOT</strong>.</p>
+      <div class="hero-actions">
+        <a href="#projects" class="btn-solid">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          View Projects
+        </a>
+        <a href="CV_Jared_Rojas.pdf" download class="btn-outline">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download CV
+        </a>
+        <a href="#contact" class="btn-outline">Get in touch</a>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="photo-card">
+        <div class="photo-placeholder">
+          <!-- Reemplaza este bloque con: <img src="foto.jpg" style="width:100%;height:100%;object-fit:cover"> -->
+          <div class="photo-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <p>your photo here</p>
+          <p class="photo-hint">replace with &lt;img&gt; tag</p>
+        </div>
+        <div class="photo-caption">
+          <strong>Jared Jacob Rojas Barrón</strong>
+          <span>Guadalajara, Jalisco · CUCEA UDG</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-hint"><span>Scroll</span><div class="scroll-line"></div></div>
+</div>
+
+<!-- STATS -->
+<div class="stats-row">
+  <div class="stat-item reveal"><span class="stat-number">2+</span><span class="stat-label">Years in IT Operations</span></div>
+  <div class="stat-item reveal d1"><span class="stat-number">7</span><span class="stat-label">Software projects deployed</span></div>
+  <div class="stat-item reveal d2"><span class="stat-number">4+</span><span class="stat-label">Years freelance development</span></div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <p class="section-eyebrow reveal">About me</p>
+  <h2 class="section-title reveal d1">Engineering systems,<br><em>building solutions.</em></h2>
+  <div class="about-layout">
+    <div class="about-body reveal d2">
+      <p>I'm a <strong>Systems Engineering student at CUCEA (Universidad de Guadalajara)</strong> and IT Operations & Support Specialist at <strong>DEIOT</strong>, where I manage cloud identities through Microsoft Azure (Entra ID), oversee hardware lifecycles with GLPI, and deliver L1/L2 technical support.</p>
+      <p>Beyond infrastructure, I design and develop web software — from <strong>clinic management systems and invoicing platforms</strong> to UX prototypes and data warehouses. I approach every project with the same discipline: clean architecture, real-world usability, and attention to detail.</p>
+      <p>I also co-manage a <strong>plant nursery</strong>, handling client relationships and operations — which keeps my communication and management skills just as sharp as my technical ones.</p>
+    </div>
+    <div class="skills-col">
+      <div class="skill-group reveal d2"><div class="skill-group-label">Cloud & IT</div><div class="skill-tags"><span class="skill-tag">Microsoft Azure</span><span class="skill-tag">Entra ID / IAM</span><span class="skill-tag">GLPI</span><span class="skill-tag">MFA</span><span class="skill-tag">Office 365</span><span class="skill-tag">L1/L2 Support</span></div></div>
+      <div class="skill-group reveal d3"><div class="skill-group-label">Development</div><div class="skill-tags"><span class="skill-tag">PHP</span><span class="skill-tag">JavaScript</span><span class="skill-tag">HTML / CSS</span><span class="skill-tag">Python</span><span class="skill-tag">SQL</span><span class="skill-tag">C#</span></div></div>
+      <div class="skill-group reveal d4"><div class="skill-group-label">Data & Design</div><div class="skill-tags"><span class="skill-tag">Power BI</span><span class="skill-tag">MS Access</span><span class="skill-tag">Figma</span><span class="skill-tag">UX Research</span></div></div>
+      <div class="skill-group reveal d5"><div class="skill-group-label">Tools & Platforms</div><div class="skill-tags"><span class="skill-tag">GitHub Pages</span><span class="skill-tag">Streamlit</span><span class="skill-tag">VS Code</span><span class="skill-tag">Arduino</span><span class="skill-tag">Linux / macOS</span></div></div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider-full">
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <p class="section-eyebrow reveal">Experience</p>
+  <h2 class="section-title reveal d1">Where I've <em>worked.</em></h2>
+  <div class="exp-list">
+    <div class="exp-item reveal d1">
+      <div class="exp-date">Dec 2025 — Present</div>
+      <div>
+        <div class="exp-company">DEIOT</div>
+        <div class="exp-role">IT Operations & Support Specialist</div>
+        <p class="exp-desc">Managing user identities in Microsoft Azure (Entra ID) — password resets, license assignments, MFA activation. Overseeing hardware and software inventory via GLPI. Coordinating onboarding with HR and delivering advanced L1/L2 technical support.</p>
+        <div class="exp-tags"><span class="exp-tag">Azure</span><span class="exp-tag">IAM</span><span class="exp-tag">GLPI</span><span class="exp-tag">MFA</span><span class="exp-tag">Onboarding</span></div>
+      </div>
+    </div>
+    <div class="exp-item reveal d2">
+      <div class="exp-date">Dec 2023 — Dec 2025</div>
+      <div>
+        <div class="exp-company">DEIOT</div>
+        <div class="exp-role">IT Support</div>
+        <p class="exp-desc">Technical support for enterprise clients — OS repairs, application troubleshooting, error logging, Azure administration, computer maintenance, and Office 365 package management. Basic cybersecurity operations.</p>
+        <div class="exp-tags"><span class="exp-tag">Tech Support</span><span class="exp-tag">Azure</span><span class="exp-tag">Office 365</span><span class="exp-tag">Cybersecurity</span></div>
+      </div>
+    </div>
+    <div class="exp-item reveal d3">
+      <div class="exp-date">Sep 2019 — Dec 2023</div>
+      <div>
+        <div class="exp-company">Freelance</div>
+        <div class="exp-role">Independent Developer & IT Consultant</div>
+        <p class="exp-desc">Developed software for various clients in PHP, JavaScript, C#, HTML/CSS, and SQL. Preventive and corrective hardware maintenance. Managed home and small-business networks. Installed and configured specialized software including Adobe suites and AutoCAD.</p>
+        <div class="exp-tags"><span class="exp-tag">PHP</span><span class="exp-tag">JavaScript</span><span class="exp-tag">C#</span><span class="exp-tag">SQL</span><span class="exp-tag">Networking</span><span class="exp-tag">Arduino</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider-full">
+
+<!-- PROJECTS -->
+<div class="projects-wrapper" id="projects">
+  <p class="section-eyebrow reveal">Projects</p>
+  <h2 class="section-title reveal d1">Selected <em>work.</em></h2>
+  <div class="projects-grid">
+
+    <!-- Mi Biblioteca CUCEA -->
+    <a href="#" class="p-card span-7 reveal d1">
+      <div class="p-preview prev-library">
+        <div class="mock-window">
+          <div class="mock-title-bar"><div class="m-dot" style="background:#ff5f57"></div><div class="m-dot" style="background:#ffbd2e"></div><div class="m-dot" style="background:#28ca41"></div></div>
+          <div class="mock-body"><div class="mock-row accent med"></div><div class="mock-row short"></div><div class="mock-block"></div><div class="mock-grid2"><div class="mock-block-sm"></div><div class="mock-block-sm"></div></div></div>
+        </div>
+      </div>
+      <div class="p-info">
+        <span class="p-badge badge-ux">UX / Design</span>
+        <h3 class="p-title">Mi Biblioteca CUCEA</h3>
+        <p class="p-desc">Full UX redesign for the CUCEA university library. 10 interactive screens, Figma prototype, sitemap, user profile, color palette, and typography system.</p>
+        <div class="p-techs"><span class="p-tech">Figma</span><span class="p-tech">UX Research</span><span class="p-tech">Prototyping</span><span class="p-tech">IA</span></div>
+      </div>
+      <div class="p-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+    </a>
+
+    <!-- Vantyx -->
+    <a href="vantyx/index.html" target="_blank" class="p-card span-5 reveal d2">
+      <div class="p-preview prev-vantyx">
+        <div class="mock-window">
+          <div class="mock-title-bar"><div class="m-dot" style="background:#ff5f57"></div><div class="m-dot" style="background:#ffbd2e"></div><div class="m-dot" style="background:#28ca41"></div></div>
+          <div class="mock-body"><div class="mock-row accent" style="width:80%"></div><div class="mock-row short"></div><div class="mock-block" style="height:28px;margin-top:12px;border-radius:100px;width:110px"></div></div>
+        </div>
+      </div>
+      <div class="p-info">
+        <span class="p-badge badge-web">Web / Branding</span>
+        <h3 class="p-title">Vantyx</h3>
+        <p class="p-desc">Informational website for IT services company. Showcases services, team, and contact flow for enterprise clients.</p>
+        <div class="p-techs"><span class="p-tech">HTML/CSS/JS</span><span class="p-tech">GitHub Pages</span></div>
+      </div>
+      <div class="p-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+    </a>
+
+    <!-- CoreDesk — span 12 horizontal -->
+    <a href="https://coredesk.streamlit.app" target="_blank" class="p-card span-12 reveal d1">
+      <div class="p-preview prev-coredesk">
+        <div class="mock-window" style="max-width:280px">
+          <div class="mock-title-bar"><div class="m-dot" style="background:#ff5f57"></div><div class="m-dot" style="background:#ffbd2e"></div><div class="m-dot" style="background:#28ca41"></div></div>
+          <div class="mock-body">
+            <div class="mock-row" style="width:40%;background:rgba(251,191,36,0.5)"></div>
+            <div style="margin-top:10px;background:rgba(0,0,0,0.06);border-radius:8px;padding:10px"><div class="mock-row" style="width:90%;margin-bottom:4px"></div><div class="mock-row short" style="margin:0"></div></div>
+            <div style="margin-top:8px;display:flex;justify-content:flex-end"><div style="background:rgba(251,191,36,0.35);border-radius:8px;padding:8px;width:70%"><div class="mock-row" style="width:100%;margin:0"></div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="p-info">
+        <span class="p-badge badge-live"><div class="live-dot"></div>Live on Streamlit</span>
+        <h3 class="p-title">CoreDesk — AI Ticket Platform</h3>
+        <p class="p-desc">Enterprise helpdesk platform where authenticated users chat with a Gemini AI trained for IT support. Resolves issues autonomously and escalates unresolved tickets to human agents. Built with Python and Streamlit, deployed and in active use.</p>
+        <div class="p-techs"><span class="p-tech">Python</span><span class="p-tech">Streamlit</span><span class="p-tech">Gemini API</span><span class="p-tech">Auth</span><span class="p-tech">AI/ML</span></div>
+      </div>
+      <div class="p-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+    </a>
+
+    <!-- Inventario IT -->
+    <a href="inventario/index.html" target="_blank" class="p-card span-6 reveal d2">
+      <div class="p-preview prev-inventory">
+        <div class="mock-window">
+          <div class="mock-title-bar"><div class="m-dot" style="background:#ff5f57"></div><div class="m-dot" style="background:#ffbd2e"></div><div class="m-dot" style="background:#28ca41"></div></div>
+          <div class="mock-body"><div class="mock-row accent" style="background:rgba(0,0,0,0.15);width:60%"></div><div class="mock-grid2" style="margin-top:10px"><div class="mock-block-sm"></div><div class="mock-block-sm"></div><div class="mock-block-sm"></div><div class="mock-block-sm"></div></div></div>
+        </div>
+      </div>
+      <div class="p-info">
+        <span class="p-badge badge-it">IT / Dashboard</span>
+        <h3 class="p-title">IT Inventory System</h3>
+        <p class="p-desc">Centralized platform to register laptops, monitors, accessories, and users. Dashboard for IT managers with equipment availability, weekly assignments, and usage charts.</p>
+        <div class="p-techs"><span class="p-tech">HTML/JS</span><span class="p-tech">LocalStorage</span><span class="p-tech">Charts</span><span class="p-tech">QR</span></div>
+      </div>
+      <div class="p-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+    </a>
+
+    <!-- Laboratorio -->
+    <a href="laboratorio/index.html" target="_blank" class="p-card span-6 reveal d3">
+      <div class="p-preview prev-lab">
+        <div class="mock-window">
+          <div class="mock-title-bar"><div class="m-dot" style="background:#ff5f57"></div><div class="m-dot" style="background:#ffbd2e"></div><div class="m-dot" style="background:#28ca41"></div></div>
+          <div class="mock-body"><div class="mock-row accent" style="background:rgba(0,0,0,0.13);width:70%"></div><div class="mock-row short"></div><div class="mock-block"></div></div>
+        </div>
+      </div>
+      <div class="p-info">
+        <span class="p-badge badge-sys">Health / Records</span>
+        <h3 class="p-title">Medinova — Clinical Lab</h3>
+        <p class="p-desc">Web platform for clinical labs. Patient history, daily visit logging, study registration, automatic price calculation, and patient record editing.</p>
+        <div class="p-techs"><span class="p-tech">HTML/JS</span><span class="p-tech">LocalStorage</span><span class="p-tech">XLSX Export</span></div>
+      </div>
+      <div class="p-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+    </a>
+
+    <!-- Facturas -->
+    <a href="facturas/index.html" target="_blank" class="p-card span-5 reveal d2">
+      <div class="p-preview prev-invoice">
+        <div class="mock-window">
+          <div class="mock-title-bar"><div class="m-dot" style="background:#ff5f57"></div><div class="m-dot" style="background:#ffbd2e"></div><div class="m-dot" style="background:#28ca41"></div></div>
+          <div class="mock-body"><div class="mock-row accent" style="background:rgba(91,33,182,0.2);width:75%"></div><div class="mock-row"></div><div class="mock-block" style="height:36px"></div><div class="mock-block" style="height:24px;margin-top:6px"></div></div>
+        </div>
+      </div>
+      <div class="p-info">
+        <span class="p-badge badge-web">Finance / Accounting</span>
+        <h3 class="p-title">Invoice & Payment Tracker</h3>
+        <p class="p-desc">Accounting platform to create invoices, manage vehicle insurance, and log construction-project payment flows with bank filtering and Excel export.</p>
+        <div class="p-techs"><span class="p-tech">HTML/JS</span><span class="p-tech">LocalStorage</span><span class="p-tech">XLSX Export</span></div>
+      </div>
+      <div class="p-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+    </a>
+
+    <!-- Data Warehouse -->
+    <a href="#" class="p-card span-7 reveal d3">
+      <div class="p-preview prev-data">
+        <div class="mock-window">
+          <div class="mock-title-bar"><div class="m-dot" style="background:#ff5f57"></div><div class="m-dot" style="background:#ffbd2e"></div><div class="m-dot" style="background:#28ca41"></div></div>
+          <div class="mock-body">
+            <div class="mock-row accent" style="background:rgba(14,116,144,0.25);width:65%"></div>
+            <div style="display:flex;gap:4px;align-items:flex-end;margin-top:12px;height:40px">
+              <div style="flex:1;background:rgba(14,116,144,0.2);border-radius:3px 3px 0 0;height:60%"></div>
+              <div style="flex:1;background:rgba(14,116,144,0.3);border-radius:3px 3px 0 0;height:100%"></div>
+              <div style="flex:1;background:rgba(14,116,144,0.2);border-radius:3px 3px 0 0;height:75%"></div>
+              <div style="flex:1;background:rgba(14,116,144,0.35);border-radius:3px 3px 0 0;height:88%"></div>
+              <div style="flex:1;background:rgba(14,116,144,0.2);border-radius:3px 3px 0 0;height:50%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="p-info">
+        <span class="p-badge badge-data">Data / BI</span>
+        <h3 class="p-title">Data Warehouse — Tech Store</h3>
+        <p class="p-desc">Data Warehouse for a technology retail store. Relational model in Microsoft Access integrated with Power BI dashboards for 2024 sales analysis.</p>
+        <div class="p-techs"><span class="p-tech">MS Access</span><span class="p-tech">Power BI</span><span class="p-tech">Data Modeling</span><span class="p-tech">DAX</span></div>
+      </div>
+      <div class="p-arrow"><svg viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></div>
+    </a>
+
+  </div>
+</div>
+
+<hr class="divider-full">
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-inner reveal">
+    <div class="contact-left">
+      <p class="section-eyebrow">Contact</p>
+      <h2 class="section-title">Let's work<br><em>together.</em></h2>
+      <p class="contact-subtitle">Open to IT consulting, software development projects, and new professional opportunities. Based in Guadalajara — available remotely.</p>
+    </div>
+    <div class="contact-right">
+      <a href="mailto:jaredrojasbarron@gmail.com" class="contact-item">
+        <div class="contact-icon"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg></div>
+        <div><div class="contact-label">Email</div><div class="contact-value">jaredrojasbarron@gmail.com</div></div>
+      </a>
+      <a href="https://linkedin.com/in/jared-jacobrojas-barrón-b908a0211" target="_blank" class="contact-item">
+        <div class="contact-icon"><svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></div>
+        <div><div class="contact-label">LinkedIn</div><div class="contact-value">jared-jacobrojas-barrón</div></div>
+      </a>
+      <a href="https://github.com/JaredRojasB" target="_blank" class="contact-item">
+        <div class="contact-icon"><svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg></div>
+        <div><div class="contact-label">GitHub</div><div class="contact-value">JaredRojasB</div></div>
+      </a>
+      <a href="CV_Jared_Rojas.pdf" download class="contact-item">
+        <div class="contact-icon"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div>
+        <div><div class="contact-label">Curriculum Vitae</div><div class="contact-value">Download CV — PDF</div></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© 2025 Jared Jacob Rojas Barrón</p>
+  <p>Guadalajara, MX · CUCEA Universidad de Guadalajara</p>
+</footer>
+
+<script>
+// Cursor — directo, sin lerp
+const cursor = document.getElementById('cursor');
+document.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top  = e.clientY + 'px';
+});
+document.querySelectorAll('a, button').forEach(el => {
+  el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
+  el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
+});
+
+// Navbar
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 30);
+}, { passive: true });
+
+// Reveal
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+}, { threshold: 0.1, rootMargin: '0px 0px -48px 0px' });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

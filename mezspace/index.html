@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MezSpace — Desk Reservation (Portfolio Demo)</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">
+    <div class="logo-mark"><svg viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="13" rx="2" stroke="white" stroke-width="1.8"/><path d="M7 20h10M12 16v4" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+    <div class="logo-text"><span class="logo-name">MezSpace</span><span class="logo-sub">Desk Reservation · Demo</span></div>
+  </div>
+  <button class="btn-ghost" id="btnAdminView">Admin View →</button>
+</header>
+
+<!-- ══════════════ EMPLOYEE VIEW ══════════════ -->
+<div id="employeeView">
+
+  <div class="occ-bar">
+    <span class="occ-label">Occupancy</span>
+    <div class="occ-track"><div class="occ-fill low" id="occFill" style="width:0%"></div></div>
+    <span class="occ-num" id="occNum">0 / 36 desks</span>
+    <div class="occ-sep"></div>
+    <span class="occ-date" id="occDate">—</span>
+  </div>
+
+  <div class="week-bar">
+    <button class="wk-nav" id="prevWk" disabled>&#8249;</button>
+    <span class="wk-label" id="wkRange">—</span>
+    <button class="wk-nav" id="nextWk">&#8250;</button>
+    <div class="day-strip" id="dayChips"></div>
+  </div>
+
+  <div class="main">
+    <div class="floor-panel">
+      <div class="floor-card">
+        <div class="floor-card-head">
+          <span class="floor-card-title">Office Floor Plan</span>
+          <div class="legend">
+            <div class="leg-item"><div class="leg-box av"></div> Available</div>
+            <div class="leg-item">
+              <div class="leg-box-co">
+                <span style="background:#922B21"></span><span style="background:#1E8449"></span><span style="background:#1A237E"></span>
+              </div>
+              Occupied (company color)
+            </div>
+            <div class="leg-item"><div class="leg-box sl"></div> Selected</div>
+            <div class="leg-item"><div class="leg-box ad"></div> Not available</div>
+          </div>
+        </div>
+        <div class="floor-body" id="floorPlan"></div>
+      </div>
+    </div>
+
+    <div class="side-panel">
+      <!-- Booking form -->
+      <div class="p-card form-card">
+        <div class="p-head"><div class="p-title">Book a Desk</div><div class="p-sub">Fill in your info and click a desk</div></div>
+        <div class="p-body">
+          <div class="f-group">
+            <label class="f-label" for="userName">Full Name</label>
+            <input class="f-input" id="userName" type="text" placeholder="Your full name" autocomplete="name">
+          </div>
+          <div class="f-group">
+            <label class="f-label" for="userCompany">Company</label>
+            <div style="display:flex;align-items:center;gap:7px">
+              <span id="companySwatch" style="display:none;width:12px;height:12px;border-radius:50%;flex-shrink:0"></span>
+              <select class="f-select" id="userCompany"></select>
+            </div>
+          </div>
+          <div class="f-group">
+            <label class="f-label" for="userEmail">Email</label>
+            <input class="f-input" id="userEmail" type="email" placeholder="you@company.com" autocomplete="email">
+          </div>
+          <!-- Time picker -->
+          <div class="f-group" style="margin-bottom:0">
+            <label class="f-label">Booking Hours</label>
+            <div class="time-toggle-row">
+              <button class="time-btn active" id="btnAllDay">All Day</button>
+              <button class="time-btn" id="btnCustom">Custom</button>
+            </div>
+            <div id="timeCustom" style="display:none;margin-top:5px;gap:5px">
+              <select class="f-select" id="startTime" style="flex:1"></select>
+              <span style="align-self:center;color:var(--gray-400);font-size:11px;flex-shrink:0">to</span>
+              <select class="f-select" id="endTime" style="flex:1"></select>
+            </div>
+          </div>
+        </div>
+        <div style="padding:0 13px 8px">
+          <label class="f-label" style="margin-bottom:5px">Selected desks</label>
+          <div class="sel-list" id="selList">
+            <div class="sel-empty">Click any desk on the floor plan to select it</div>
+          </div>
+        </div>
+        <div class="p-foot">
+          <button class="btn-confirm" id="confirmBtn" disabled>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Confirm Reservation
+          </button>
+        </div>
+      </div>
+
+      <!-- My bookings -->
+      <div class="p-card">
+        <div class="p-head"><div class="p-title">Your Reservations</div><div class="p-sub">Active bookings for your email</div></div>
+        <div class="p-body" style="padding:6px 13px 10px"><div class="bk-list" id="myBkList"><div class="bk-empty">Enter your email to see your reservations</div></div></div>
+      </div>
+
+      <!-- Calendar -->
+      <div class="p-card" style="flex-shrink:0">
+        <div class="cal-header">
+          <button class="cal-nav-btn" id="calPrev">&#8249;</button>
+          <span class="cal-month-lbl" id="calMonthLbl">—</span>
+          <button class="cal-nav-btn" id="calNext">&#8250;</button>
+        </div>
+        <div class="cal-wrap"><div class="cal-grid" id="calGrid"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cancel modal -->
+  <div class="modal-overlay hidden" id="cancelModal">
+    <div class="modal-card">
+      <div class="modal-icon">🗑️</div>
+      <div class="modal-title">Cancel Reservation</div>
+      <div class="modal-body" id="modalBody">Are you sure?</div>
+      <div class="modal-actions">
+        <button class="btn-modal-keep" id="cancelNo">Keep it</button>
+        <button class="btn-modal-del" id="cancelYes">Yes, cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Conference Room modal -->
+  <div class="conf-overlay hidden" id="confOverlay">
+    <div class="conf-modal">
+      <div class="conf-modal-top">
+        <div class="conf-room-vis">
+          <svg viewBox="0 0 80 60" fill="none" width="80" height="60">
+            <rect width="80" height="60" rx="6" fill="#1E3150"/>
+            <rect x="10" y="18" width="60" height="28" rx="3" fill="#2C4A6E" stroke="#3B6091" stroke-width="1"/>
+            <circle cx="40" cy="32" r="12" fill="#3B6091" stroke="#4E7DAD" stroke-width="1"/>
+            <rect x="16" y="24" width="10" height="16" rx="2" fill="#4E7DAD" opacity=".5"/>
+            <rect x="54" y="24" width="10" height="16" rx="2" fill="#4E7DAD" opacity=".5"/>
+            <rect x="30" y="14" width="20" height="6" rx="1" fill="#3B6091"/>
+          </svg>
+        </div>
+        <div class="conf-room-info">
+          <div class="conf-room-name">Conference Room</div>
+          <div class="conf-room-loc">MezSpace HQ · Ground Floor</div>
+          <div class="conf-amenities">
+            <span class="conf-amenity">👥 8</span>
+            <span class="conf-amenity">📋 Whiteboard</span>
+            <span class="conf-amenity">📺 TV / Screen</span>
+          </div>
+        </div>
+        <button class="conf-close-btn" id="btnCloseConf">✕</button>
+      </div>
+
+      <!-- Timeline -->
+      <div class="conf-tl-section">
+        <div class="conf-tl-labels" id="tlLabels"></div>
+        <div class="conf-tl-track" id="tlTrack"></div>
+      </div>
+
+      <!-- Restriction notice -->
+      <div style="display:flex;gap:16px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:8px;padding:7px 14px;font-size:10.5px;color:var(--gray-400)">
+        <span>⏱ Min: <strong style="color:var(--gray-600)">10 min</strong></span>
+        <span>⏳ Max: <strong style="color:var(--gray-600)">6 h</strong></span>
+        <span>🕐 Available: <strong style="color:var(--gray-600)">7:00 AM – 6:00 PM</strong></span>
+        <span>📅 Drag on the bar to select</span>
+      </div>
+      <!-- Details -->
+      <div class="conf-details">
+        <div class="conf-detail-row">
+          <span class="conf-detail-label">Date</span>
+          <span class="conf-detail-val" id="confDateLbl">—</span>
+        </div>
+        <div class="conf-detail-row">
+          <span class="conf-detail-label">Time</span>
+          <span class="conf-detail-val" id="confTimeLbl">Select a time above</span>
+        </div>
+      </div>
+
+      <button class="conf-book-btn" id="btnBookConf" disabled>Choose a time</button>
+    </div>
+  </div>
+
+</div>
+<!-- ══════════════ /EMPLOYEE VIEW ══════════════ -->
+
+
+<!-- ══════════════ ADMIN VIEW (hidden until unlocked) ══════════════ -->
+<div id="adminView" style="display:none">
+
+  <div id="pinScreen">
+    <div class="pin-screen">
+      <div class="pin-card">
+        <div class="pin-icon">🔐</div>
+        <div class="pin-title">Admin Access</div>
+        <div class="pin-hint">Enter the admin PIN &nbsp;·&nbsp; <strong>Demo PIN: demo1234</strong></div>
+        <input class="pin-input" id="pinInput" type="password" maxlength="12" placeholder="••••••••" autocomplete="off">
+        <button class="btn-unlock" onclick="checkPin()">Unlock</button>
+        <div class="pin-err" id="pinErr">Incorrect PIN.</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="adminDash" style="display:none" class="admin-body">
+    <div class="admin-main">
+
+      <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
+        <button class="btn-ghost" id="btnEmployeeView" style="background:var(--navy);color:#fff;border-color:var(--navy)">← Back to App</button>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card acc-o"><div class="stat-v" id="sToday">0</div><div class="stat-l">Desks booked today</div></div>
+        <div class="stat-card acc-o"><div class="stat-v" id="sWeek">0</div><div class="stat-l">This week</div></div>
+        <div class="stat-card acc-b"><div class="stat-v" id="sUsers">0</div><div class="stat-l">Unique users</div></div>
+        <div class="stat-card acc-b"><div class="stat-v" id="sTotal">0</div><div class="stat-l">Total reservations</div></div>
+      </div>
+
+      <!-- Occupancy by row -->
+      <div class="tbl-card" style="margin-bottom:16px">
+        <div class="tbl-toolbar" style="border-bottom:1px solid var(--gray-200)">
+          <span class="tbl-title">Today's Occupancy by Row</span>
+          <span id="admDateLbl" style="font-size:12px;color:var(--gray-400)"></span>
+        </div>
+        <div style="padding:14px 18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px" id="rowOccGrid"></div>
+      </div>
+
+      <!-- Desk reservations -->
+      <div class="tbl-card" style="margin-bottom:16px">
+        <div class="tbl-toolbar">
+          <span class="tbl-title">Desk Reservations</span>
+          <div class="tbl-filters">
+            <input class="f-search" id="fsearch" placeholder="Search name, email, desk…">
+            <select class="f-date" id="fcompany" style="min-width:160px"><option value="">All companies</option></select>
+            <input class="f-date" id="fdate" type="date">
+            <button class="btn-clear" id="btnClear">Clear</button>
+          </div>
+        </div>
+        <div class="tbl-scroll">
+          <table class="adm-tbl">
+            <thead><tr><th>Name / Email</th><th>Company</th><th>Date</th><th>Desks &amp; Hours</th><th>Action</th></tr></thead>
+            <tbody id="admTbody"><tr><td colspan="5" class="tbl-empty">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Conference Room reservations -->
+      <div class="tbl-card">
+        <div class="tbl-toolbar"><span class="tbl-title">Conference Room Bookings</span></div>
+        <div class="tbl-scroll">
+          <table class="adm-tbl">
+            <thead><tr><th>Name / Email</th><th>Company</th><th>Date</th><th>Time Slot</th><th>Action</th></tr></thead>
+            <tbody id="confTbody"><tr><td colspan="5" class="tbl-empty">No bookings</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+<!-- ══════════════ /ADMIN VIEW ══════════════ -->
+
+
+<div class="toast-zone" id="toastZone"></div>
+<script src="app.js"></script>
+</body>
+</html>
