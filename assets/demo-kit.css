@@ -1,0 +1,32 @@
+/* Shared UI for portfolio demos: back button, language switch, guided tour */
+.dk-back{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px 0 10px;border-radius:999px;background:#1c1c1e;color:#fff;font-size:13px;font-weight:500;text-decoration:none;transition:background .2s,transform .2s}
+.dk-back::before{content:"\2190";font-size:15px}
+.dk-back:hover{background:#1f6f5b;transform:translateX(-2px)}
+.dk-lang{display:flex;background:#f2f2f0;border:1px solid #dcdcd7;border-radius:999px;padding:3px}
+.dk-lang button{font:inherit;font-size:12px;font-weight:600;border:0;background:transparent;color:#6e6e73;padding:4px 10px;border-radius:999px;cursor:pointer}
+.dk-lang button[aria-pressed="true"]{background:#1c1c1e;color:#fff}
+.dk-help{font:inherit;font-size:13px;font-weight:500;height:34px;padding:0 14px;border-radius:999px;border:1.5px solid #1f6f5b;background:transparent;color:#1f6f5b;cursor:pointer;transition:all .2s}
+.dk-help:hover{background:#1f6f5b;color:#fff}
+
+.dk-tour{position:fixed;inset:0;z-index:1000}
+.dk-shade{position:absolute;inset:0}
+.dk-shade.solid{background:rgba(20,20,22,.55);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.dk-spot{position:fixed;border-radius:16px;box-shadow:0 0 0 9999px rgba(20,20,22,.55),0 0 0 3px #1f6f5b;transition:all .35s cubic-bezier(.2,.8,.2,1);pointer-events:none}
+.dk-card{position:fixed;background:#fff;border-radius:20px;padding:22px 22px 18px;box-shadow:0 24px 60px rgba(0,0,0,.28);transition:top .35s cubic-bezier(.2,.8,.2,1),left .35s cubic-bezier(.2,.8,.2,1);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:#1c1c1e;animation:dk-in .35s ease}
+@keyframes dk-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.dk-step{font-size:12px;font-weight:600;color:#1f6f5b;background:#e6f0ec;display:inline-block;padding:3px 10px;border-radius:999px;margin:0 0 10px}
+.dk-title{font-size:20px;letter-spacing:-.01em;margin:0 0 6px}
+.dk-body{font-size:15px;line-height:1.5;color:#3a3a3c;margin:0}
+.dk-dots{display:flex;gap:5px;margin:16px 0 14px}
+.dk-dots i{width:6px;height:6px;border-radius:99px;background:#dcdcd7;transition:all .25s}
+.dk-dots i.on{width:20px;background:#1f6f5b}
+.dk-row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.dk-right{display:flex;gap:8px}
+.dk-skip{font:inherit;font-size:13px;border:0;background:none;color:#6e6e73;cursor:pointer;padding:6px 0}
+.dk-skip:hover{color:#1c1c1e}
+.dk-btn{font:inherit;font-size:14px;font-weight:500;height:38px;padding:0 18px;border-radius:999px;border:1px solid #1c1c1e;background:#1c1c1e;color:#fff;cursor:pointer;transition:all .2s}
+.dk-btn:hover{background:#1f6f5b;border-color:#1f6f5b}
+.dk-btn.dk-ghost{background:transparent;color:#1c1c1e}
+.dk-btn.dk-ghost:hover{background:#1c1c1e;color:#fff;border-color:#1c1c1e}
+.dk-btn[hidden]{display:none}
+@media (prefers-reduced-motion:reduce){.dk-spot,.dk-card{transition:none;animation:none}}

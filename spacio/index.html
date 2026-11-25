@@ -6,21 +6,29 @@
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Spacio — Space booking demo</title>
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="stylesheet" href="../assets/demo-kit.css">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <header class="top">
   <div class="top-left">
-    <a class="logo" href="../" title="Back to portfolio"><span class="logo-mark">S</span>Spacio</a>
-    <span class="badge">Demo · fictional data</span>
+    <a class="dk-back" href="../#work" id="backBtn" data-i18n="back">Portfolio</a>
+    <span class="logo"><span class="logo-mark">S</span>Spacio</span>
+    <span class="badge" data-i18n="badge">Demo · fictional data</span>
   </div>
-  <div class="seg" id="modeSeg" role="tablist" aria-label="Site type">
-    <button type="button" data-mode="office" class="on">Workplace</button>
-    <button type="button" data-mode="home">Residence</button>
+  <div class="seg" id="modeSeg" role="group" aria-label="Site type">
+    <button type="button" data-mode="office" class="on" data-i18n="mode.office">Workplace</button>
+    <button type="button" data-mode="home" data-i18n="mode.home">Residence</button>
   </div>
   <div class="top-right">
-    <button type="button" class="link" id="resetBtn">Reset demo</button>
+    <button type="button" class="dk-help" id="tourBtn" data-i18n="tour">Take the tour</button>
+    <div class="dk-lang" id="langSeg" role="group" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-lang="es" aria-pressed="false">ES</button>
+    </div>
+    <button type="button" class="link" id="resetBtn" data-i18n="reset">Reset demo</button>
   </div>
 </header>
 
@@ -30,24 +38,23 @@
     <p id="siteMeta" class="muted">—</p>
   </div>
   <nav class="tabs" id="tabs" aria-label="Views">
-    <button type="button" data-view="plan" class="on">Floor plan</button>
-    <button type="button" data-view="week">Week</button>
-    <button type="button" data-view="insights">Insights</button>
-    <button type="button" data-view="mine">My bookings <span id="mineCount" class="count">0</span></button>
+    <button type="button" data-view="plan" class="on" data-i18n="tab.plan">Floor plan</button>
+    <button type="button" data-view="week" data-i18n="tab.week">Week</button>
+    <button type="button" data-view="insights" data-i18n="tab.insights">Insights</button>
+    <button type="button" data-view="mine"><span data-i18n="tab.mine">My bookings</span> <span id="mineCount" class="count">0</span></button>
   </nav>
 </div>
 
 <div class="days" id="days" aria-label="Choose a day"></div>
 
 <main>
-  <!-- Floor plan -->
   <section class="view on" id="view-plan">
-    <aside class="panel filters">
-      <h3>Filter</h3>
+    <aside class="panel filters" id="filtersPanel">
+      <h3 data-i18n="f.title">Filter</h3>
       <div id="typeFilters" class="chips"></div>
-      <label class="field">Minimum capacity
+      <label class="field"><span data-i18n="f.cap">Minimum capacity</span>
         <select id="capFilter">
-          <option value="1">Any</option>
+          <option value="1" data-i18n="f.any">Any</option>
           <option value="2">2+</option>
           <option value="4">4+</option>
           <option value="8">8+</option>
@@ -55,75 +62,72 @@
       </label>
       <div id="amenFilters" class="checks"></div>
       <div class="legend">
-        <span><i class="lg free"></i>Available</span>
-        <span><i class="lg part"></i>Partly booked</span>
-        <span><i class="lg full"></i>Fully booked</span>
-        <span><i class="lg sel"></i>Selected</span>
-        <span><i class="lg dim"></i>Filtered out</span>
+        <span><i class="lg free"></i><span data-i18n="lg.free">Available</span></span>
+        <span><i class="lg part"></i><span data-i18n="lg.part">Partly booked</span></span>
+        <span><i class="lg full"></i><span data-i18n="lg.full">Fully booked</span></span>
+        <span><i class="lg sel"></i><span data-i18n="lg.sel">Selected</span></span>
+        <span><i class="lg dim"></i><span data-i18n="lg.dim">Filtered out</span></span>
       </div>
     </aside>
 
-    <div class="plan-wrap">
+    <div class="plan-wrap" id="planWrap">
       <svg id="plan" viewBox="0 0 1000 620" role="img" aria-label="Floor plan"></svg>
-      <p class="hint muted">Click a space to see availability and book it.</p>
+      <p class="hint muted" data-i18n="hint">Click a space to see availability and book it.</p>
     </div>
 
     <aside class="panel detail" id="detail">
       <div class="empty" id="detailEmpty">
         <div class="empty-ico"></div>
-        <p>Select a space on the plan.</p>
+        <p data-i18n="d.empty">Select a space on the plan.</p>
       </div>
       <div id="detailBody" hidden>
         <p class="muted" id="dType"></p>
         <h2 id="dName"></h2>
         <div class="facts" id="dFacts"></div>
-        <h4>Pick a time <span class="muted small" id="dRule"></span></h4>
+        <h4><span data-i18n="d.pick">Pick a time</span> <span class="muted small" id="dRule"></span></h4>
         <div class="slots" id="slots"></div>
-        <p class="sel-sum" id="selSum">No time selected.</p>
-        <label class="field">Your name
-          <input id="inName" maxlength="40" autocomplete="name" placeholder="e.g. Alex Moreno">
+        <p class="sel-sum" id="selSum"></p>
+        <label class="field"><span data-i18n="d.name">Your name</span>
+          <input id="inName" maxlength="40" autocomplete="name" placeholder="Alex Moreno">
         </label>
-        <label class="field">Note (optional)
-          <input id="inNote" maxlength="80" placeholder="e.g. Client call">
+        <label class="field"><span data-i18n="d.note">Note (optional)</span>
+          <input id="inNote" maxlength="80">
         </label>
-        <button type="button" class="btn" id="bookBtn" disabled>Book</button>
+        <button type="button" class="btn" id="bookBtn" disabled data-i18n="d.book">Book</button>
         <p class="err" id="err" role="alert"></p>
       </div>
     </aside>
   </section>
 
-  <!-- Week -->
   <section class="view" id="view-week">
     <div class="panel wide">
       <div class="row-between">
-        <h3>This week at a glance</h3>
-        <span class="muted small">Bars show how much of each day is booked. Click a cell to open it on the plan.</span>
+        <h3 data-i18n="w.title">This week at a glance</h3>
+        <span class="muted small" data-i18n="w.hint">Bars show how much of each day is booked. Click a cell to open it on the plan.</span>
       </div>
       <div class="week-grid" id="weekGrid"></div>
     </div>
   </section>
 
-  <!-- Insights -->
   <section class="view" id="view-insights">
     <div class="kpis" id="kpis"></div>
     <div class="two">
       <div class="panel">
-        <h3>Utilization by space type</h3>
+        <h3 data-i18n="i.type">Utilization by space type</h3>
         <div id="byType" class="bars"></div>
       </div>
       <div class="panel">
-        <h3>Busiest hours this week</h3>
+        <h3 data-i18n="i.hours">Busiest hours this week</h3>
         <div id="byHour" class="hist"></div>
         <div class="hist-axis" id="byHourAxis"></div>
       </div>
     </div>
     <div class="panel">
-      <h3>Most booked spaces</h3>
+      <h3 data-i18n="i.top">Most booked spaces</h3>
       <div id="topSpaces" class="bars"></div>
     </div>
   </section>
 
-  <!-- Mine -->
   <section class="view" id="view-mine">
     <div class="mine" id="mineList"></div>
   </section>
@@ -132,18 +136,19 @@
 <div class="modal" id="passModal" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="passTitle">
     <button type="button" class="x" id="passClose" aria-label="Close">×</button>
-    <p class="muted small">Check‑in pass</p>
+    <p class="muted small" data-i18n="p.kicker">Check‑in pass</p>
     <h2 id="passTitle"></h2>
     <p id="passWhen" class="muted"></p>
     <div class="qr" id="passQr" aria-hidden="true"></div>
     <p class="code" id="passCode"></p>
-    <p class="muted small">Demo pass — the pattern is decorative, not a scannable code.</p>
-    <button type="button" class="btn" id="checkInBtn">Check in now</button>
+    <p class="muted small" data-i18n="p.note">Demo pass — the pattern is decorative, not a scannable code.</p>
+    <button type="button" class="btn" id="checkInBtn"></button>
   </div>
 </div>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script src="../assets/demo-kit.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

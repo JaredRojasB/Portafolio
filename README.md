@@ -10,7 +10,7 @@ Every project in this repository is an independent demo built specifically for t
 
 | Project | Folder | Status |
 |---|---|---|
-| Spacio — space booking on an interactive floor plan | `spacio/` | Live |
+| Spacio — space booking on an interactive floor plan (guided tour, EN/ES) | `spacio/` | Live |
 | Inventra — asset management | — | In progress |
 | Triage — conversational help desk | — | In progress |
 | Settle — payables and renewals | — | In progress |
