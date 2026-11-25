@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Mercato — E‑commerce demo</title>
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="stylesheet" href="../assets/demo-base.css">
+<link rel="stylesheet" href="../assets/demo-kit.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="top-left">
+    <a class="dk-back" href="../#work" data-i18n="back">Portfolio</a>
+    <span class="logo"><span class="logo-mark">M</span>Mercato</span>
+    <span class="badge" data-i18n="badge">Demo · no real purchases</span>
+  </div>
+  <div class="top-mid">
+    <div class="seg" id="modeSeg" role="group" aria-label="Side">
+      <button type="button" data-mode="shop" class="on" data-i18n="mode.shop">Storefront</button>
+      <button type="button" data-mode="admin" data-i18n="mode.admin">Owner dashboard</button>
+    </div>
+  </div>
+  <div class="top-right">
+    <button type="button" class="dk-help" id="tourBtn" data-i18n="tour">Take the tour</button>
+    <div class="dk-lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="es">ES</button>
+    </div>
+    <button type="button" class="cart-btn" id="cartBtn" aria-label="Cart"><span class="bag" aria-hidden="true"></span><span id="cartCount" class="count">0</span></button>
+  </div>
+</header>
+
+<!-- Storefront -->
+<div id="shopSide">
+  <section class="hero-store">
+    <div class="hs-inner">
+      <p class="hs-kicker" data-i18n="hs.kicker">Plant shop · Guadalajara</p>
+      <h1 data-i18n="hs.title">Bring the garden home.</h1>
+      <p class="muted" data-i18n="hs.sub">Indoor plants, herbs, pots and everything to care for them. Free delivery on orders over $999.</p>
+      <div class="row"><span class="pill acc plain" data-i18n="hs.coupon">Try coupon DEMO10 for 10% off</span></div>
+    </div>
+  </section>
+
+  <main>
+    <div class="shop-bar" id="shopBar">
+      <input class="search" id="q" type="search" maxlength="40" data-i18n-ph="s.search" placeholder="Search plants, pots, tools…">
+      <div class="chips" id="catChips"></div>
+      <select class="search sel" id="sort" aria-label="Sort">
+        <option value="pop" data-i18n="sort.pop">Most popular</option>
+        <option value="low" data-i18n="sort.low">Price: low to high</option>
+        <option value="high" data-i18n="sort.high">Price: high to low</option>
+        <option value="name" data-i18n="sort.name">Name</option>
+      </select>
+    </div>
+    <div class="products" id="grid"></div>
+  </main>
+</div>
+
+<!-- Owner -->
+<div id="adminSide" hidden>
+  <div class="head">
+    <div><h1 data-i18n="a.title">Store dashboard</h1><p class="muted" data-i18n="a.sub">Orders placed in the storefront appear here instantly.</p></div>
+    <nav class="tabs" id="tabs" aria-label="Views">
+      <button type="button" data-view="ov" class="on" data-i18n="t.ov">Overview</button>
+      <button type="button" data-view="orders"><span data-i18n="t.orders">Orders</span> <span class="count" id="newCount">0</span></button>
+      <button type="button" data-view="stock" data-i18n="t.stock">Inventory</button>
+    </nav>
+  </div>
+  <main>
+    <section class="view on" id="view-ov">
+      <div class="kpis" id="kpis"></div>
+      <div class="grid-2">
+        <div class="panel"><h3 data-i18n="a.week">Sales, last 7 days</h3><div class="cols" id="weekCols"></div></div>
+        <div class="panel"><h3 data-i18n="a.top">Best sellers</h3><div class="bars" id="topList"></div></div>
+      </div>
+    </section>
+    <section class="view" id="view-orders">
+      <div class="panel">
+        <div class="row-between" id="orderBar"><div class="chips" id="ordChips"></div></div>
+        <div class="table-wrap"><table class="data">
+          <thead><tr><th data-i18n="c.order">Order</th><th data-i18n="c.customer">Customer</th><th data-i18n="c.items">Items</th><th data-i18n="c.delivery">Delivery</th><th class="num" data-i18n="c.total">Total</th><th data-i18n="c.status">Status</th><th></th></tr></thead>
+          <tbody id="ordRows"></tbody>
+        </table></div>
+      </div>
+    </section>
+    <section class="view" id="view-stock">
+      <div class="panel">
+        <div class="row-between"><h3 data-i18n="inv.title">Inventory</h3><span class="muted small" data-i18n="inv.hint">Stock below 5 units is flagged. Changes show in the storefront immediately.</span></div>
+        <div class="table-wrap"><table class="data">
+          <thead><tr><th data-i18n="c.product">Product</th><th data-i18n="c.cat">Category</th><th class="num" data-i18n="c.price">Price</th><th data-i18n="c.stock">Stock</th><th class="num" data-i18n="c.sold">Sold</th></tr></thead>
+          <tbody id="invRows"></tbody>
+        </table></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Product detail -->
+<div class="modal" id="pdModal" hidden>
+  <div class="sheet pd" role="dialog" aria-modal="true" aria-labelledby="pdName">
+    <button type="button" class="x" data-close="pdModal" aria-label="Close">×</button>
+    <div class="pd-grid">
+      <div class="pd-art" id="pdArt"></div>
+      <div>
+        <p class="muted small" id="pdCat"></p>
+        <h2 id="pdName"></h2>
+        <p class="pd-price" id="pdPrice"></p>
+        <p id="pdDesc"></p>
+        <ul class="pd-facts" id="pdFacts"></ul>
+        <div class="row mt">
+          <div class="qty"><button type="button" id="pdMinus" aria-label="Less">−</button><span id="pdQty">1</span><button type="button" id="pdPlus" aria-label="More">+</button></div>
+          <button type="button" class="btn" id="pdAdd" data-i18n="add">Add to cart</button>
+        </div>
+        <p class="muted small mt" id="pdStock"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Cart drawer -->
+<div class="backdrop" id="backdrop" hidden></div>
+<aside class="drawer" id="cart" aria-hidden="true">
+  <div class="drawer-head"><h2 data-i18n="cart.title">Your cart</h2><button type="button" class="x" id="cartClose" aria-label="Close">×</button></div>
+  <div class="drawer-body">
+    <div id="cartItems"></div>
+    <div class="coupon">
+      <input id="coupon" maxlength="16" data-i18n-ph="cart.coupon" placeholder="Coupon code" autocomplete="off">
+      <button type="button" class="btn ghost sm" id="couponBtn" data-i18n="cart.apply">Apply</button>
+    </div>
+    <p class="small" id="couponMsg"></p>
+    <div class="totals" id="cartTotals"></div>
+  </div>
+  <div class="drawer-foot"><button type="button" class="btn block" id="checkoutBtn" data-i18n="cart.checkout">Checkout</button></div>
+</aside>
+
+<!-- Checkout -->
+<div class="modal" id="coModal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="coTitle">
+    <button type="button" class="x" data-close="coModal" aria-label="Close">×</button>
+    <h2 id="coTitle" data-i18n="co.title">Checkout</h2>
+    <p class="muted small" data-i18n="co.note">This is a demo: no payment is processed and no card details are ever requested.</p>
+    <div class="form-grid mt">
+      <label class="field"><span data-i18n="co.name">Full name</span><input id="cName" maxlength="60" autocomplete="off"></label>
+      <label class="field"><span data-i18n="co.email">Email</span><input id="cEmail" maxlength="80" type="email" autocomplete="off"></label>
+      <label class="field full"><span data-i18n="co.delivery">Delivery</span>
+        <select id="cDel"><option value="ship" data-i18n="co.ship">Home delivery</option><option value="pickup" data-i18n="co.pickup">Pick up in store (free)</option></select></label>
+      <label class="field full" id="addrField"><span data-i18n="co.addr">Address</span><input id="cAddr" maxlength="120" autocomplete="off"></label>
+      <label class="field full"><span data-i18n="co.pay">Payment method</span>
+        <select id="cPay"><option value="card" data-i18n="co.card">Card (simulated)</option><option value="transfer" data-i18n="co.transfer">Bank transfer</option><option value="cod" data-i18n="co.cod">Pay on delivery</option></select></label>
+    </div>
+    <div class="totals" id="coTotals"></div>
+    <p class="err" id="coErr" role="alert"></p>
+    <div class="sheet-foot">
+      <button type="button" class="btn ghost" data-close="coModal" data-i18n="cancel">Cancel</button>
+      <button type="button" class="btn" id="placeBtn" data-i18n="co.place">Place order</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirmation -->
+<div class="modal" id="okModal" hidden>
+  <div class="sheet center" role="dialog" aria-modal="true" aria-labelledby="okTitle">
+    <div class="ok-ico" aria-hidden="true"></div>
+    <h2 id="okTitle"></h2>
+    <p class="muted" id="okBody"></p>
+    <div class="sheet-foot center">
+      <button type="button" class="btn ghost" id="okAdmin" data-i18n="ok.admin">See it in the dashboard</button>
+      <button type="button" class="btn" data-close="okModal" data-i18n="ok.keep">Keep shopping</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="../assets/demo-kit.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

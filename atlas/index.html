@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Atlas — Private cloud case study</title>
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="stylesheet" href="../assets/demo-base.css">
+<link rel="stylesheet" href="../assets/demo-kit.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="top-left">
+    <a class="dk-back" href="../#work" data-i18n="back">Portfolio</a>
+    <span class="logo"><span class="logo-mark">A</span>Atlas</span>
+    <span class="badge" data-i18n="badge">Case study · details anonymized</span>
+  </div>
+  <div class="top-mid">
+    <div class="seg" id="modeSeg" role="group" aria-label="View">
+      <button type="button" data-mode="study" class="on" data-i18n="mode.study">Case study</button>
+      <button type="button" data-mode="console" data-i18n="mode.console">Console (simulated)</button>
+    </div>
+  </div>
+  <div class="top-right">
+    <button type="button" class="dk-help" id="tourBtn" data-i18n="tour">Take the tour</button>
+    <div class="dk-lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="es">ES</button>
+    </div>
+  </div>
+</header>
+
+<!-- Case study -->
+<div id="study">
+  <section class="cs-hero">
+    <div class="cs-wrap">
+      <p class="cs-kicker" data-i18n="h.kicker">Infrastructure · Case study</p>
+      <h1 data-i18n="h.title">A private cloud built from hardware that was already in a drawer.</h1>
+      <p class="cs-lede" data-i18n="h.lede">Photos, documents and a family movie library moved off paid cloud storage and onto reused computers at home — virtualized, backed up every night, reachable from anywhere and never exposed to the internet.</p>
+      <div class="cs-stats" id="stats"></div>
+    </div>
+  </section>
+
+  <main class="cs">
+    <section class="cs-sec" id="secGoal">
+      <div class="cs-side"><p class="kick" data-i18n="g.k">01 · The goal</p><h2 data-i18n="g.t">Stop paying for storage without giving up convenience.</h2></div>
+      <div class="cs-body">
+        <p data-i18n="g.p1">The family's photos lived in a paid cloud subscription that kept growing, movies were scattered across laptops and nobody knew where the important documents were. The brief was simple: one private place for everything, as easy as the apps they already used.</p>
+        <ul class="cs-list" id="reqList"></ul>
+      </div>
+    </section>
+
+    <section class="cs-sec" id="secArch">
+      <div class="cs-side"><p class="kick" data-i18n="a.k">02 · Architecture</p><h2 data-i18n="a.t">Three reused machines, one job each.</h2>
+        <p class="muted" data-i18n="a.p">A main node runs every service in isolated containers; a low‑power node receives encrypted backups and watches the others; a third machine stays on standby for heavier tasks.</p></div>
+      <div class="cs-body"><div class="diagram" id="diagram" role="img" aria-label="Architecture diagram"></div></div>
+    </section>
+
+    <section class="cs-sec">
+      <div class="cs-side"><p class="kick" data-i18n="c.k">03 · Building blocks</p><h2 data-i18n="c.t">Open‑source tools, chosen for reliability.</h2></div>
+      <div class="cs-body"><div class="blocks" id="blocks"></div></div>
+    </section>
+
+    <section class="cs-sec">
+      <div class="cs-side"><p class="kick" data-i18n="d.k">04 · Decisions</p><h2 data-i18n="d.t">The choices that mattered.</h2></div>
+      <div class="cs-body"><div class="decisions" id="decisions"></div></div>
+    </section>
+
+    <section class="cs-sec">
+      <div class="cs-side"><p class="kick" data-i18n="r.k">05 · Results</p><h2 data-i18n="r.t">What changed.</h2></div>
+      <div class="cs-body"><div class="results" id="results"></div>
+        <h3 class="mt" data-i18n="l.t">Lessons learned</h3><ul class="cs-list" id="lessons"></ul></div>
+    </section>
+
+    <section class="cs-sec cta-sec">
+      <div class="cs-side"><p class="kick" data-i18n="x.k">06 · For clients</p><h2 data-i18n="x.t">The same approach, for your office or home.</h2></div>
+      <div class="cs-body"><p data-i18n="x.p">A small office file server with permissions, automatic off‑site backups, secure remote access for the team, uptime alerts on your phone — sized to your budget and built so anyone can use it.</p>
+        <div class="row mt"><button type="button" class="btn" id="toConsole" data-i18n="x.btn">Open the simulated console</button><a class="btn ghost" href="../#contact" data-i18n="x.contact">Talk about a project</a></div></div>
+    </section>
+  </main>
+</div>
+
+<!-- Console -->
+<div id="console" hidden>
+  <div class="con">
+    <div class="con-head">
+      <div><h1 data-i18n="k.title">Atlas console</h1><p class="con-sub" data-i18n="k.sub">Simulated data that mirrors the real dashboard. Names and addresses are fictional.</p></div>
+      <div class="con-clock"><span class="live-dot"></span><span id="clock">—</span></div>
+    </div>
+    <div class="nodes" id="nodes"></div>
+    <div class="con-grid">
+      <div class="glass" id="svcPanel"><div class="g-head"><h3 data-i18n="k.svc">Services</h3><span class="g-note" id="svcSum"></span></div><div class="svcs" id="svcs"></div></div>
+      <div class="glass" id="actPanel"><div class="g-head"><h3 data-i18n="k.actions">Quick actions</h3></div><div class="acts" id="acts"></div></div>
+    </div>
+    <div class="con-grid">
+      <div class="glass"><div class="g-head"><h3 data-i18n="k.backups">Backups</h3><span class="g-note" data-i18n="k.policy">Nightly · keep 7 daily, 4 weekly, 6 monthly</span></div><div class="bk" id="bk"></div></div>
+      <div class="glass"><div class="g-head"><h3 data-i18n="k.alerts">Alerts</h3><span class="g-note" data-i18n="k.alertsSub">Sent to the family chat</span></div><div class="alerts" id="alerts"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="../assets/demo-kit.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -15,9 +15,9 @@ Every project in this repository is an independent demo built specifically for t
 | Triage — conversational help desk (classifier, SLA queue, guided tour, EN/ES) | `triage/` | Live |
 | Settle — payables and renewals (business / household, guided tour, EN/ES) | `settle/` | Live |
 | Vitalis — clinical lab front desk (smart study search, worklist, guided tour, EN/ES) | `vitalis/` | Live |
-| Hearth — shared finances | — | In progress |
-| Mercato — e‑commerce storefront | — | In progress |
-| Atlas — private cloud case study | — | In progress |
+| Hearth — shared finances (household / business, debt projections, guided tour, EN/ES) | `hearth/` | Live |
+| Mercato — e‑commerce storefront + owner dashboard (guided tour, EN/ES) | `mercato/` | Live |
+| Atlas — private cloud case study + simulated console (EN/ES) | `atlas/` | Live |
 
 ## Security
 

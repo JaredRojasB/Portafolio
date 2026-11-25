@@ -96,6 +96,8 @@ window.PORTFOLIO_ES = {
   'work.live': 'Demo en vivo',
   'work.soon': 'Próximamente',
   'work.open': 'Abrir demo',
+  'work.case': 'Leer caso de estudio',
+  'work.caseTag': 'Caso de estudio + consola',
 
   'p.spacio.cat': 'Reservaciones',
   'p.spacio.desc': 'Un sistema para reservar espacios compartidos. Eliges el día, encuentras un escritorio, sala o amenidad libre en un plano interactivo y lo apartas en pocos clics — con reglas que evitan empalmes y reservas demasiado largas.',

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Hearth — Shared finances demo</title>
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="stylesheet" href="../assets/demo-base.css">
+<link rel="stylesheet" href="../assets/demo-kit.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="top-left">
+    <a class="dk-back" href="../#work" data-i18n="back">Portfolio</a>
+    <span class="logo"><span class="logo-mark">H</span>Hearth</span>
+    <span class="badge" data-i18n="badge">Demo · fictional data</span>
+  </div>
+  <div class="top-mid">
+    <div class="seg" id="modeSeg" role="group" aria-label="Mode">
+      <button type="button" data-mode="home" class="on" data-i18n="mode.home">Household</button>
+      <button type="button" data-mode="biz" data-i18n="mode.biz">Small business</button>
+    </div>
+  </div>
+  <div class="top-right">
+    <button type="button" class="dk-help" id="tourBtn" data-i18n="tour">Take the tour</button>
+    <div class="dk-lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="es">ES</button>
+    </div>
+    <button type="button" class="link" id="resetBtn" data-i18n="reset">Reset demo</button>
+  </div>
+</header>
+
+<div class="head">
+  <div><h1 id="title">—</h1><p class="muted" id="meta">—</p></div>
+  <nav class="tabs" id="tabs" aria-label="Views">
+    <button type="button" data-view="ov" class="on" data-i18n="t.ov">This month</button>
+    <button type="button" data-view="spend" data-i18n="t.spend">Spending</button>
+    <button type="button" data-view="goals" data-i18n="t.goals">Goals</button>
+    <button type="button" data-view="debts" data-i18n="t.debts">Debts</button>
+  </nav>
+</div>
+
+<main>
+  <section class="view on" id="view-ov">
+    <div class="kpis" id="kpis"></div>
+    <div class="grid-2">
+      <div class="panel" id="splitPanel">
+        <div class="row-between"><h3 data-i18n="o.split">Who pays what</h3>
+          <div class="seg small-seg" id="splitSeg" role="group" aria-label="Split rule">
+            <button type="button" data-split="prop" class="on" data-i18n="o.prop">By income</button>
+            <button type="button" data-split="half" data-i18n="o.half">50 / 50</button>
+          </div></div>
+        <p class="muted small" id="splitHint"></p>
+        <div class="members" id="members"></div>
+        <h4 class="mt" data-i18n="o.fixed">Fixed bills this month</h4>
+        <div class="list" id="fixed"></div>
+      </div>
+      <div class="panel" id="budgetPanel">
+        <h3 data-i18n="o.budgets">Budgets</h3>
+        <div class="budgets" id="budgets"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="view-spend">
+    <div class="grid-3">
+      <div class="panel">
+        <div class="row-between"><h3 data-i18n="s.title">Transactions this month</h3><select class="search sel" id="fCat" aria-label="Category"></select></div>
+        <div class="list" id="tx"></div>
+      </div>
+      <div class="panel" id="addPanel">
+        <h3 data-i18n="s.add">Add an expense</h3>
+        <div class="stack-f">
+          <label class="field"><span data-i18n="s.what">What was it?</span><input id="iWhat" maxlength="50" autocomplete="off"></label>
+          <label class="field"><span data-i18n="s.amount">Amount (MXN)</span><input id="iAmt" type="number" min="1" max="1000000" step="0.01"></label>
+          <label class="field"><span data-i18n="s.cat">Category</span><select id="iCat"></select></label>
+          <label class="field"><span data-i18n="s.who">Paid by</span><select id="iWho"></select></label>
+          <label class="field"><span data-i18n="s.date">Date</span><input id="iDate" type="date"></label>
+          <p class="err" id="addErr" role="alert"></p>
+          <button type="button" class="btn block" id="addBtn" data-i18n="s.save">Add expense</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="view-goals"><div class="goals" id="goals"></div></section>
+
+  <section class="view" id="view-debts">
+    <div class="debts" id="debts"></div>
+    <p class="muted small mt" data-i18n="d.note">Projections use a fixed annual interest rate and monthly payments. They are estimates for planning, not financial advice.</p>
+  </section>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="../assets/demo-kit.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
