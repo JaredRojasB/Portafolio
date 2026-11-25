@@ -12,9 +12,25 @@
     if (v === 'es' || v === 'en') return v;
     return (navigator.language || 'en').toLowerCase().indexOf('es') === 0 ? 'es' : 'en';
   }
+  var NOTE = {
+    en: { b: 'Design for demonstration purposes.', t: ' Colors, layout, logo and wording can be fully adapted to each client\'s brand and taste.' },
+    es: { b: 'Diseño con fines demostrativos.', t: ' Los colores, la distribución, el logo y los textos se pueden adaptar por completo a la marca y al gusto de cada cliente.' }
+  };
+  function note(lang) {
+    var n = document.getElementById('dkNote');
+    if (!n) {
+      n = document.createElement('footer'); n.id = 'dkNote'; n.className = 'dk-note';
+      document.body.appendChild(n);
+    }
+    var x = NOTE[lang] || NOTE.en;
+    while (n.firstChild) n.removeChild(n.firstChild);
+    var b = document.createElement('b'); b.textContent = x.b;
+    n.appendChild(b); n.appendChild(document.createTextNode(x.t));
+  }
   function setLang(v) {
     try { localStorage.setItem(LANG_KEY, v); } catch (e) { /* ignore */ }
     document.documentElement.lang = v;
+    note(v);
   }
 
   function el(tag, cls, text) {
@@ -225,6 +241,8 @@
       clear: function () { try { localStorage.removeItem(key); } catch (e) { /* ignore */ } }
     };
   }
+
+  note(getLang());
 
   window.DemoKit = { getLang: getLang, setLang: setLang, Tour: Tour, I18n: I18n, h: h, clear: clear, clean: clean,
     rng: rng, pattern: pattern, toast: toast, downloadCsv: downloadCsv, store: store };

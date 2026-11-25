@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Vitalis — Clinical lab front desk demo</title>
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="stylesheet" href="../assets/demo-base.css">
+<link rel="stylesheet" href="../assets/demo-kit.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="top-left">
+    <a class="dk-back" href="../#work" data-i18n="back">Portfolio</a>
+    <span class="logo"><span class="logo-mark">V</span>Vitalis</span>
+    <span class="badge" data-i18n="badge">Demo · fictional patients</span>
+  </div>
+  <div class="top-right">
+    <button type="button" class="dk-help" id="tourBtn" data-i18n="tour">Take the tour</button>
+    <div class="dk-lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="es">ES</button>
+    </div>
+    <button type="button" class="link" id="resetBtn" data-i18n="reset">Reset demo</button>
+  </div>
+</header>
+
+<div class="head">
+  <div>
+    <h1 data-i18n="title">Vitalis Lab — Front desk</h1>
+    <p class="muted" id="todayLine">—</p>
+  </div>
+  <nav class="tabs" id="tabs" aria-label="Views">
+    <button type="button" data-view="new" class="on" data-i18n="tab.new">New order</button>
+    <button type="button" data-view="work"><span data-i18n="tab.work">Worklist</span> <span class="count" id="workCount">0</span></button>
+    <button type="button" data-view="pts" data-i18n="tab.pts">Patients</button>
+    <button type="button" data-view="cat" data-i18n="tab.cat">Catalog</button>
+    <button type="button" data-view="sum" data-i18n="tab.sum">Daily summary</button>
+  </nav>
+</div>
+
+<main>
+  <!-- New order -->
+  <section class="view on" id="view-new">
+    <div class="order-grid">
+      <div class="panel" id="patientPanel">
+        <div class="row-between"><h3 data-i18n="n.patient">1 · Patient</h3><button type="button" class="link" id="newPtBtn" data-i18n="n.newPt">+ New patient</button></div>
+        <div id="ptPicker">
+          <input class="search wide" id="ptQ" type="search" maxlength="60" data-i18n-ph="n.ptSearch" placeholder="Search by name or phone" autocomplete="off">
+          <div class="list pick" id="ptResults"></div>
+        </div>
+        <div id="ptChosen" hidden>
+          <div class="pt-card">
+            <span class="avatar" id="ptAv"></span>
+            <div><b id="ptName"></b><br><small class="muted" id="ptMeta"></small></div>
+            <button type="button" class="btn ghost sm" id="ptChange" data-i18n="n.change">Change</button>
+          </div>
+          <p class="muted small" id="ptLast"></p>
+        </div>
+        <div id="ptForm" hidden>
+          <div class="form-grid">
+            <label class="field full"><span data-i18n="f.name">Full name</span><input id="fName" maxlength="60" autocomplete="off"></label>
+            <label class="field"><span data-i18n="f.birth">Birth date</span><input id="fBirth" type="date"></label>
+            <label class="field"><span data-i18n="f.sex">Sex</span><select id="fSex"><option value="F" data-i18n="sex.F">Female</option><option value="M" data-i18n="sex.M">Male</option></select></label>
+            <label class="field"><span data-i18n="f.phone">Phone</span><input id="fPhone" maxlength="15" inputmode="tel" autocomplete="off"></label>
+            <label class="field"><span data-i18n="f.doctor">Referring doctor (optional)</span><input id="fDoctor" maxlength="60" autocomplete="off"></label>
+          </div>
+          <p class="err" id="ptErr" role="alert"></p>
+          <div class="row"><button type="button" class="btn sm" id="ptSave" data-i18n="f.savePt">Save patient</button><button type="button" class="btn ghost sm" id="ptCancel" data-i18n="cancel">Cancel</button></div>
+        </div>
+      </div>
+
+      <div class="panel" id="studyPanel">
+        <h3 data-i18n="n.studies">2 · Studies</h3>
+        <input class="search wide" id="stQ" type="search" maxlength="40" data-i18n-ph="n.stSearch" placeholder="Type a code, name or keyword — e.g. BH, glucose, thyroid" autocomplete="off">
+        <div class="list pick" id="stResults"></div>
+        <div class="cart" id="cart"></div>
+        <div class="prep" id="prep" hidden></div>
+      </div>
+
+      <div class="panel" id="payPanel">
+        <h3 data-i18n="n.pay">3 · Payment</h3>
+        <label class="field"><span data-i18n="n.discount">Discount</span>
+          <select id="disc"><option value="0" data-i18n="d.0">None</option><option value="10" data-i18n="d.10">Senior citizen · 10%</option><option value="15" data-i18n="d.15">Company agreement · 15%</option></select></label>
+        <div class="totals" id="totals"></div>
+        <label class="field mt"><span data-i18n="n.method">Payment</span>
+          <select id="pay"><option value="cash" data-i18n="p.cash">Cash</option><option value="card" data-i18n="p.card">Card</option><option value="transfer" data-i18n="p.transfer">Transfer</option><option value="pending" data-i18n="p.pending">Pay on pickup</option></select></label>
+        <button type="button" class="btn block mt" id="createBtn" disabled data-i18n="n.create">Create order</button>
+        <p class="err" id="orderErr" role="alert"></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Worklist -->
+  <section class="view" id="view-work">
+    <div class="panel">
+      <div class="row-between" id="workBar">
+        <div class="chips" id="workChips"></div>
+        <select class="search sel" id="workDay" aria-label="Day"></select>
+      </div>
+      <div class="work" id="workList"></div>
+    </div>
+  </section>
+
+  <!-- Patients -->
+  <section class="view" id="view-pts">
+    <div class="panel">
+      <div class="row-between"><input class="search" id="ptsQ" type="search" maxlength="60" data-i18n-ph="n.ptSearch" placeholder="Search by name or phone"><span class="muted small" id="ptsCount"></span></div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th data-i18n="c.patient">Patient</th><th data-i18n="c.age">Age</th><th data-i18n="c.phone">Phone</th><th data-i18n="c.visits">Visits</th><th data-i18n="c.last">Last visit</th></tr></thead>
+          <tbody id="ptsRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Catalog -->
+  <section class="view" id="view-cat">
+    <div class="panel">
+      <div class="row-between"><input class="search" id="catQ" type="search" maxlength="40" data-i18n-ph="n.stSearch" placeholder="Search"><div class="chips" id="catChips"></div></div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr><th data-i18n="c.code">Code</th><th data-i18n="c.study">Study</th><th data-i18n="c.area">Area</th><th data-i18n="c.tat">Results in</th><th data-i18n="c.prep">Preparation</th><th class="num" data-i18n="c.price">Price</th></tr></thead>
+          <tbody id="catRows"></tbody>
+        </table>
+      </div>
+      <p class="muted small mt" data-i18n="cat.note">Prices are fictional and for demonstration only.</p>
+    </div>
+  </section>
+
+  <!-- Summary -->
+  <section class="view" id="view-sum">
+    <div class="kpis" id="kpis"></div>
+    <div class="grid-2">
+      <div class="panel"><h3 data-i18n="s.status">Today by status</h3><div class="bars" id="sumStatus"></div></div>
+      <div class="panel"><h3 data-i18n="s.top">Most requested this week</h3><div class="bars" id="sumTop"></div></div>
+    </div>
+  </section>
+</main>
+
+<!-- Patient drawer -->
+<div class="backdrop" id="backdrop" hidden></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="drawer-head">
+    <div><p class="muted small" id="drMeta"></p><h2 id="drName"></h2></div>
+    <button type="button" class="x" id="drClose" aria-label="Close">×</button>
+  </div>
+  <div class="drawer-body">
+    <dl class="kv" id="drKv"></dl>
+    <h4 data-i18n="dr.history">Visit history</h4>
+    <div class="tl" id="drHist"></div>
+  </div>
+  <div class="drawer-foot"><button type="button" class="btn sm" id="drNew" data-i18n="dr.newOrder">New order for this patient</button></div>
+</aside>
+
+<!-- Receipt -->
+<div class="modal" id="rcModal" hidden>
+  <div class="sheet receipt" role="dialog" aria-modal="true" aria-labelledby="rcTitle">
+    <button type="button" class="x no-print" id="rcClose" aria-label="Close">×</button>
+    <div class="rc-head"><span class="logo-mark">V</span><div><b>Vitalis Lab</b><br><small class="muted" data-i18n="rc.addr">Demo clinic · fictional address</small></div></div>
+    <h2 id="rcTitle"></h2>
+    <dl class="kv" id="rcKv"></dl>
+    <table class="data rc-table"><tbody id="rcRows"></tbody></table>
+    <div class="totals" id="rcTotals"></div>
+    <div class="prep" id="rcPrep"></div>
+    <p class="muted small" data-i18n="rc.foot">Keep this receipt to pick up your results.</p>
+    <div class="sheet-foot no-print">
+      <button type="button" class="btn ghost" id="rcPrint" data-i18n="rc.print">Print</button>
+      <button type="button" class="btn" id="rcDone" data-i18n="rc.done">Done</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="../assets/demo-kit.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

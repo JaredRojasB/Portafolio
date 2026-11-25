@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Settle — Payables demo</title>
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="stylesheet" href="../assets/demo-base.css">
+<link rel="stylesheet" href="../assets/demo-kit.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="top-left">
+    <a class="dk-back" href="../#work" data-i18n="back">Portfolio</a>
+    <span class="logo"><span class="logo-mark">$</span>Settle</span>
+    <span class="badge" data-i18n="badge">Demo · fictional data</span>
+  </div>
+  <div class="top-mid">
+    <div class="seg" id="modeSeg" role="group" aria-label="Mode">
+      <button type="button" data-mode="biz" class="on" data-i18n="mode.biz">Business</button>
+      <button type="button" data-mode="home" data-i18n="mode.home">Household</button>
+    </div>
+  </div>
+  <div class="top-right">
+    <button type="button" class="dk-help" id="tourBtn" data-i18n="tour">Take the tour</button>
+    <div class="dk-lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="es">ES</button>
+    </div>
+    <button type="button" class="link" id="resetBtn" data-i18n="reset">Reset demo</button>
+  </div>
+</header>
+
+<div class="head">
+  <div>
+    <h1 id="orgName">—</h1>
+    <p class="muted" id="orgMeta">—</p>
+  </div>
+  <nav class="tabs" id="tabs" aria-label="Views">
+    <button type="button" data-view="dash" class="on" data-i18n="tab.dash">Overview</button>
+    <button type="button" data-view="pay" data-i18n="tab.pay">Payments</button>
+    <button type="button" data-view="ren" data-i18n="tab.ren">Renewals</button>
+    <button type="button" data-view="rep" data-i18n="tab.rep">Reports</button>
+  </nav>
+</div>
+
+<main>
+  <section class="view on" id="view-dash">
+    <div class="kpis" id="kpis"></div>
+    <div class="grid-3">
+      <div class="panel" id="timelinePanel">
+        <div class="row-between"><h3 data-i18n="d.next">What's coming</h3><button type="button" class="btn sm" id="addBtn2" data-i18n="p.add">Add payment</button></div>
+        <div id="buckets"></div>
+      </div>
+      <div class="panel" id="renPanel">
+        <h3 data-i18n="d.ren">Renewals in the next 60 days</h3>
+        <div class="list" id="renSoon"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="view-pay">
+    <div class="panel">
+      <div class="row-between" id="payBar">
+        <div class="row">
+          <input class="search" id="q" type="search" maxlength="60" data-i18n-ph="p.search" placeholder="Search vendor or concept">
+          <select class="search sel" id="fGroup" aria-label="Group"></select>
+          <div class="chips" id="fStatus"></div>
+        </div>
+        <div class="row">
+          <button type="button" class="btn ghost sm" id="csvBtn" data-i18n="p.export">Export CSV</button>
+          <button type="button" class="btn sm" id="addBtn" data-i18n="p.add">Add payment</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr>
+            <th data-i18n="c.vendor">Vendor / concept</th><th id="thGroup">Project</th><th data-i18n="c.due">Due</th>
+            <th data-i18n="c.status">Status</th><th class="num" data-i18n="c.amount">Amount</th><th></th>
+          </tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <p class="muted small foot" id="rowSum"></p>
+    </div>
+  </section>
+
+  <section class="view" id="view-ren">
+    <div class="row-between">
+      <p class="muted" data-i18n="r.hint">Insurance, certificates, licenses and subscriptions that must be renewed on time.</p>
+      <button type="button" class="btn sm" id="addRen" data-i18n="r.add">Add renewal</button>
+    </div>
+    <div class="ren-grid" id="renGrid"></div>
+  </section>
+
+  <section class="view" id="view-rep">
+    <div class="grid-2">
+      <div class="panel"><h3 id="repGroupTitle">Spending by project</h3><div class="bars" id="repGroup"></div></div>
+      <div class="panel"><h3 data-i18n="rep.month">Last 6 months</h3><div class="cols" id="repMonths"></div><div class="legend" id="repLegend"></div></div>
+    </div>
+  </section>
+</main>
+
+<!-- Payment form -->
+<div class="modal" id="payModal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="payTitle">
+    <button type="button" class="x" data-close="payModal" aria-label="Close">×</button>
+    <h2 id="payTitle"></h2>
+    <div class="form-grid">
+      <label class="field"><span data-i18n="f.vendor">Vendor</span><input id="iVendor" maxlength="60"></label>
+      <label class="field"><span data-i18n="f.concept">Concept</span><input id="iConcept" maxlength="80"></label>
+      <label class="field"><span id="lGroup">Project</span><select id="iGroup"></select></label>
+      <label class="field"><span data-i18n="f.amount">Amount (MXN)</span><input id="iAmount" type="number" min="1" max="100000000" step="0.01"></label>
+      <label class="field"><span data-i18n="f.due">Due date</span><input id="iDue" type="date"></label>
+      <label class="field"><span data-i18n="f.repeat">Repeats</span>
+        <select id="iRepeat"><option value="0" data-i18n="f.once">One time</option><option value="1" data-i18n="f.monthly">Monthly</option></select></label>
+    </div>
+    <p class="err" id="payErr" role="alert"></p>
+    <div class="sheet-foot">
+      <button type="button" class="btn ghost" data-close="payModal" data-i18n="cancel">Cancel</button>
+      <button type="button" class="btn" id="paySave" data-i18n="save">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mark as paid -->
+<div class="modal" id="paidModal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="paidTitle">
+    <button type="button" class="x" data-close="paidModal" aria-label="Close">×</button>
+    <h2 id="paidTitle"></h2>
+    <p class="muted" id="paidSub"></p>
+    <div class="form-grid mt">
+      <label class="field"><span data-i18n="f.paidOn">Paid on</span><input id="iPaidOn" type="date"></label>
+      <label class="field"><span data-i18n="f.method">Method</span>
+        <select id="iMethod"><option value="transfer" data-i18n="m.transfer">Bank transfer</option><option value="card" data-i18n="m.card">Card</option><option value="cash" data-i18n="m.cash">Cash</option><option value="check" data-i18n="m.check">Check</option></select></label>
+      <label class="field full"><span data-i18n="f.ref">Reference (optional)</span><input id="iRef" maxlength="40" class="mono"></label>
+    </div>
+    <div class="sheet-foot">
+      <button type="button" class="btn ghost" data-close="paidModal" data-i18n="cancel">Cancel</button>
+      <button type="button" class="btn" id="paidSave" data-i18n="markPaid">Mark as paid</button>
+    </div>
+  </div>
+</div>
+
+<!-- Renewal form -->
+<div class="modal" id="renModal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="renTitle">
+    <button type="button" class="x" data-close="renModal" aria-label="Close">×</button>
+    <h2 id="renTitle"></h2>
+    <div class="form-grid">
+      <label class="field full"><span data-i18n="f.rname">Name</span><input id="rName" maxlength="60"></label>
+      <label class="field"><span data-i18n="f.rkind">Type</span>
+        <select id="rKind"><option value="insurance" data-i18n="k.insurance">Insurance</option><option value="cert" data-i18n="k.cert">Certificate</option><option value="license" data-i18n="k.license">License</option><option value="sub" data-i18n="k.sub">Subscription</option><option value="permit" data-i18n="k.permit">Permit</option></select></label>
+      <label class="field"><span data-i18n="f.expires">Expires</span><input id="rExp" type="date"></label>
+      <label class="field"><span data-i18n="f.cost">Renewal cost (MXN)</span><input id="rCost" type="number" min="0" max="100000000" step="0.01"></label>
+      <label class="field"><span data-i18n="f.every">Renews every</span>
+        <select id="rEvery"><option value="12" data-i18n="e.12">12 months</option><option value="24" data-i18n="e.24">2 years</option><option value="48" data-i18n="e.48">4 years</option><option value="1" data-i18n="e.1">Month</option></select></label>
+    </div>
+    <p class="err" id="renErr" role="alert"></p>
+    <div class="sheet-foot">
+      <button type="button" class="btn ghost" data-close="renModal" data-i18n="cancel">Cancel</button>
+      <button type="button" class="btn" id="renSave" data-i18n="save">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="../assets/demo-kit.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

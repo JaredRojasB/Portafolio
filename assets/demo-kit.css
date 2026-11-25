@@ -30,3 +30,5 @@
 .dk-btn.dk-ghost:hover{background:#1c1c1e;color:#fff;border-color:#1c1c1e}
 .dk-btn[hidden]{display:none}
 @media (prefers-reduced-motion:reduce){.dk-spot,.dk-card{transition:none;animation:none}}
+.dk-note{max-width:1320px;margin:8px auto 28px;padding:14px 24px;font-size:13px;color:#6e6e73;text-align:center;line-height:1.5}
+.dk-note b{color:#3a3a3c;font-weight:600}
