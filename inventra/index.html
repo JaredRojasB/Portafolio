@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Inventra — Asset management demo</title>
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="stylesheet" href="../assets/demo-base.css">
+<link rel="stylesheet" href="../assets/demo-kit.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="top-left">
+    <a class="dk-back" href="../#work" data-i18n="back">Portfolio</a>
+    <span class="logo"><span class="logo-mark">I</span>Inventra</span>
+    <span class="badge" data-i18n="badge">Demo · fictional data</span>
+  </div>
+  <div class="top-mid">
+    <div class="seg" id="modeSeg" role="group" aria-label="Mode">
+      <button type="button" data-mode="company" class="on" data-i18n="mode.company">Company</button>
+      <button type="button" data-mode="home" data-i18n="mode.home">Home</button>
+    </div>
+  </div>
+  <div class="top-right">
+    <button type="button" class="dk-help" id="tourBtn" data-i18n="tour">Take the tour</button>
+    <div class="dk-lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="es">ES</button>
+    </div>
+    <button type="button" class="link" id="resetBtn" data-i18n="reset">Reset demo</button>
+  </div>
+</header>
+
+<div class="head">
+  <div>
+    <h1 id="orgName">—</h1>
+    <p class="muted" id="orgMeta">—</p>
+  </div>
+  <nav class="tabs" id="tabs" aria-label="Views">
+    <button type="button" data-view="dash" class="on" data-i18n="tab.dash">Overview</button>
+    <button type="button" data-view="assets" data-i18n="tab.assets">Assets</button>
+    <button type="button" data-view="people" id="tabPeople">People</button>
+    <button type="button" data-view="activity" data-i18n="tab.activity">Activity</button>
+  </nav>
+</div>
+
+<main>
+  <!-- Overview -->
+  <section class="view on" id="view-dash">
+    <div class="kpis" id="kpis"></div>
+    <div class="grid-3">
+      <div class="panel">
+        <div class="row-between"><h3 data-i18n="d.byCat">Assets by category</h3><span class="muted small" data-i18n="d.byCatHint">Share in use</span></div>
+        <div class="bars" id="byCat"></div>
+      </div>
+      <div class="panel" id="expPanel">
+        <h3 data-i18n="d.expiring">Warranties ending soon</h3>
+        <div class="list" id="expList"></div>
+      </div>
+    </div>
+    <div class="grid-2 mt">
+      <div class="panel">
+        <h3 data-i18n="d.status">By status</h3>
+        <div class="status-strip" id="statusStrip"></div>
+        <div class="legend" id="statusLegend"></div>
+      </div>
+      <div class="panel">
+        <h3 data-i18n="d.recent">Recent activity</h3>
+        <div class="list" id="recentList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Assets -->
+  <section class="view" id="view-assets">
+    <div class="panel">
+      <div class="row-between toolbar" id="toolbar">
+        <div class="row">
+          <input class="search" id="q" type="search" maxlength="60" data-i18n-ph="a.search" placeholder="Search name, tag, serial or person">
+          <select class="search sel" id="fCat" aria-label="Category"></select>
+          <select class="search sel" id="fStatus" aria-label="Status"></select>
+        </div>
+        <div class="row">
+          <button type="button" class="btn ghost sm" id="csvBtn" data-i18n="a.export">Export CSV</button>
+          <button type="button" class="btn sm" id="addBtn" data-i18n="a.add">Add asset</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr>
+            <th class="sort" data-sort="name" data-i18n="c.asset">Asset</th>
+            <th class="sort" data-sort="cat" data-i18n="c.cat">Category</th>
+            <th class="sort" data-sort="status" data-i18n="c.status">Status</th>
+            <th class="sort" data-sort="holder" id="thHolder">Assigned to</th>
+            <th class="sort" data-sort="warranty" data-i18n="c.warranty">Warranty</th>
+            <th class="sort num" data-sort="cost" data-i18n="c.value">Value</th>
+          </tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <p class="muted small foot" id="rowCount"></p>
+    </div>
+  </section>
+
+  <!-- People / rooms -->
+  <section class="view" id="view-people">
+    <div class="people" id="peopleGrid"></div>
+  </section>
+
+  <!-- Activity -->
+  <section class="view" id="view-activity">
+    <div class="panel">
+      <h3 data-i18n="act.title">Everything that happened</h3>
+      <div class="tl" id="actList"></div>
+    </div>
+  </section>
+</main>
+
+<!-- Drawer -->
+<div class="backdrop" id="backdrop" hidden></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="drawer-head">
+    <div>
+      <p class="muted small mono" id="dTag"></p>
+      <h2 id="dName"></h2>
+      <div class="row" id="dPills"></div>
+    </div>
+    <button type="button" class="x" id="dClose" data-i18n-title="close" aria-label="Close">×</button>
+  </div>
+  <div class="drawer-body">
+    <div class="tag-card">
+      <div class="qr" id="dQr" aria-hidden="true"></div>
+      <div>
+        <b data-i18n="dr.label">Asset label</b>
+        <p class="muted small" data-i18n="dr.labelHint">Stick it on the device. In this demo the pattern is decorative.</p>
+      </div>
+    </div>
+    <dl class="kv" id="dKv"></dl>
+    <h4 data-i18n="dr.history">History</h4>
+    <div class="tl" id="dHist"></div>
+  </div>
+  <div class="drawer-foot" id="dActions"></div>
+</aside>
+
+<!-- Asset form -->
+<div class="modal" id="formModal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="formTitle">
+    <button type="button" class="x" id="fClose" aria-label="Close">×</button>
+    <h2 id="formTitle"></h2>
+    <div class="form-grid">
+      <label class="field full"><span data-i18n="f.name">Name</span><input id="iName" maxlength="60" data-i18n-ph="f.namePh"></label>
+      <label class="field"><span data-i18n="c.cat">Category</span><select id="iCat"></select></label>
+      <label class="field"><span data-i18n="f.brand">Brand / model</span><input id="iBrand" maxlength="60"></label>
+      <label class="field"><span data-i18n="f.serial">Serial number</span><input id="iSerial" maxlength="40" class="mono"></label>
+      <label class="field"><span data-i18n="f.cost">Value (MXN)</span><input id="iCost" type="number" min="0" max="10000000" step="1"></label>
+      <label class="field"><span data-i18n="f.bought">Purchase date</span><input id="iBought" type="date"></label>
+      <label class="field"><span data-i18n="f.warranty">Warranty ends</span><input id="iWarranty" type="date"></label>
+      <label class="field full"><span data-i18n="f.notes">Notes</span><textarea id="iNotes" maxlength="200"></textarea></label>
+    </div>
+    <p class="err" id="fErr" role="alert"></p>
+    <div class="sheet-foot">
+      <button type="button" class="btn ghost" id="fCancel" data-i18n="cancel">Cancel</button>
+      <button type="button" class="btn" id="fSave" data-i18n="save">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Assign -->
+<div class="modal" id="assignModal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="assignTitle">
+    <button type="button" class="x" id="aClose" aria-label="Close">×</button>
+    <h2 id="assignTitle"></h2>
+    <label class="field"><span id="assignLabel"></span><select id="aWho"></select></label>
+    <label class="field mt-s"><span data-i18n="f.note">Note (optional)</span><input id="aNote" maxlength="80"></label>
+    <div class="sheet-foot">
+      <button type="button" class="btn ghost" id="aCancel" data-i18n="cancel">Cancel</button>
+      <button type="button" class="btn" id="aSave" data-i18n="confirm">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="../assets/demo-kit.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

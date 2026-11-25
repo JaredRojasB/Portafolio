@@ -132,5 +132,100 @@
     this.root = null;
   };
 
-  window.DemoKit = { getLang: getLang, setLang: setLang, Tour: Tour };
+  /* ---------- Small shared helpers ---------- */
+  function h(tag, attrs, kids) {
+    var n = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      var v = attrs[k];
+      if (v == null || v === false) return;
+      if (k === 'text') n.textContent = v;
+      else if (k === 'class') n.className = v;
+      else if (k.slice(0, 2) === 'on') n.addEventListener(k.slice(2), v);
+      else n.setAttribute(k, v === true ? '' : v);
+    });
+    (kids || []).forEach(function (c) { if (c != null && c !== false) n.appendChild(typeof c === 'string' ? document.createTextNode(c) : c); });
+    return n;
+  }
+  function clear(n) { while (n.firstChild) n.removeChild(n.firstChild); return n; }
+  function clean(v, max) { return String(v == null ? '' : v).replace(/[\u0000-\u001f\u007f<>]/g, '').trim().slice(0, max || 200); }
+
+  /* i18n: dict = { en: {...}, es: {...} }. Static nodes use data-i18n / data-i18n-ph. */
+  function I18n(dict) {
+    var self = this;
+    this.dict = dict; this.lang = getLang(); this.listeners = [];
+    this.t = function (k, v) {
+      var s = (dict[self.lang] && dict[self.lang][k] != null) ? dict[self.lang][k] : (dict.en[k] != null ? dict.en[k] : k);
+      if (v && typeof s === 'string') Object.keys(v).forEach(function (x) { s = s.split('{' + x + '}').join(v[x]); });
+      return s;
+    };
+  }
+  I18n.prototype.apply = function () {
+    var t = this.t, lang = this.lang;
+    document.documentElement.lang = lang;
+    document.querySelectorAll('[data-i18n]').forEach(function (n) { n.textContent = t(n.getAttribute('data-i18n')); });
+    document.querySelectorAll('[data-i18n-ph]').forEach(function (n) { n.setAttribute('placeholder', t(n.getAttribute('data-i18n-ph'))); });
+    document.querySelectorAll('[data-i18n-title]').forEach(function (n) { n.setAttribute('aria-label', t(n.getAttribute('data-i18n-title'))); });
+    document.querySelectorAll('.dk-lang button').forEach(function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-lang') === lang ? 'true' : 'false'); });
+  };
+  I18n.prototype.bind = function (onChange) {
+    var self = this;
+    document.querySelectorAll('.dk-lang button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        self.lang = b.getAttribute('data-lang'); setLang(self.lang); self.apply(); if (onChange) onChange();
+      });
+    });
+    this.apply();
+  };
+
+  /* Decorative tag pattern (not a real QR code). */
+  function rng(seed) { return function () { seed = (seed * 1664525 + 1013904223) % 4294967296; return seed / 4294967296; }; }
+  function pattern(box, txt) {
+    clear(box);
+    var NS = 'http://www.w3.org/2000/svg', n = 21;
+    function r(tag, a) { var e = document.createElementNS(NS, tag); Object.keys(a).forEach(function (k) { e.setAttribute(k, a[k]); }); return e; }
+    var s = r('svg', { viewBox: '0 0 21 21', 'shape-rendering': 'crispEdges' });
+    var hsh = 0; for (var i = 0; i < txt.length; i++) hsh = (hsh * 31 + txt.charCodeAt(i)) >>> 0;
+    var rnd = rng(hsh || 7);
+    for (var y = 0; y < n; y++) for (var x = 0; x < n; x++) {
+      var inF = (x < 8 && y < 8) || (x > 12 && y < 8) || (x < 8 && y > 12);
+      if (!inF && rnd() > 0.52) s.appendChild(r('rect', { x: x, y: y, width: 1, height: 1 }));
+    }
+    [[0, 0], [14, 0], [0, 14]].forEach(function (p) {
+      s.appendChild(r('rect', { x: p[0], y: p[1], width: 7, height: 7 }));
+      s.appendChild(r('rect', { x: p[0] + 1, y: p[1] + 1, width: 5, height: 5, fill: '#fff' }));
+      s.appendChild(r('rect', { x: p[0] + 2, y: p[1] + 2, width: 3, height: 3 }));
+    });
+    box.appendChild(s);
+  }
+
+  var toastTimer;
+  function toast(msg) {
+    var t = document.getElementById('toast'); if (!t) return;
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove('show'); }, 2600);
+  }
+
+  /* CSV export with formula-injection protection. */
+  function csvCell(v) {
+    var s = String(v == null ? '' : v);
+    if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+    return '"' + s.replace(/"/g, '""') + '"';
+  }
+  function downloadCsv(name, rows) {
+    var csv = '﻿' + rows.map(function (r) { return r.map(csvCell).join(','); }).join('\r\n');
+    var url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+    var a = h('a', { href: url, download: name }); document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  function store(key) {
+    return {
+      load: function () { try { var r = localStorage.getItem(key); return r ? JSON.parse(r) : null; } catch (e) { return null; } },
+      save: function (v) { try { localStorage.setItem(key, JSON.stringify(v)); } catch (e) { /* ignore */ } },
+      clear: function () { try { localStorage.removeItem(key); } catch (e) { /* ignore */ } }
+    };
+  }
+
+  window.DemoKit = { getLang: getLang, setLang: setLang, Tour: Tour, I18n: I18n, h: h, clear: clear, clean: clean,
+    rng: rng, pattern: pattern, toast: toast, downloadCsv: downloadCsv, store: store };
 })();

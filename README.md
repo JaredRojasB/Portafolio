@@ -11,8 +11,8 @@ Every project in this repository is an independent demo built specifically for t
 | Project | Folder | Status |
 |---|---|---|
 | Spacio — space booking on an interactive floor plan (guided tour, EN/ES) | `spacio/` | Live |
-| Inventra — asset management | — | In progress |
-| Triage — conversational help desk | — | In progress |
+| Inventra — asset management (company / home, guided tour, EN/ES) | `inventra/` | Live |
+| Triage — conversational help desk (classifier, SLA queue, guided tour, EN/ES) | `triage/` | Live |
 | Settle — payables and renewals | — | In progress |
 | Vitalis — clinical lab records | — | In progress |
 | Hearth — shared finances | — | In progress |
@@ -24,3 +24,4 @@ Every project in this repository is an independent demo built specifically for t
 - Static site: no server, no database, no API keys.
 - Strict Content-Security-Policy on every page (scripts only from this site, no inline scripts).
 - User input is rendered with `textContent` only and sanitized before storage.
+- CSV exports are protected against spreadsheet formula injection.

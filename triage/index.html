@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Triage — Service desk demo</title>
+<link rel="icon" type="image/png" href="../assets/favicon.png">
+<link rel="stylesheet" href="../assets/demo-base.css">
+<link rel="stylesheet" href="../assets/demo-kit.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <div class="top-left">
+    <a class="dk-back" href="../#work" data-i18n="back">Portfolio</a>
+    <span class="logo"><span class="logo-mark">T</span>Triage</span>
+    <span class="badge" data-i18n="badge">Demo · fictional data</span>
+  </div>
+  <div class="top-right">
+    <button type="button" class="dk-help" id="tourBtn" data-i18n="tour">Take the tour</button>
+    <div class="dk-lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="es">ES</button>
+    </div>
+    <button type="button" class="link" id="resetBtn" data-i18n="reset">Reset demo</button>
+  </div>
+</header>
+
+<div class="head">
+  <div>
+    <h1 data-i18n="title">Northwind Service Desk</h1>
+    <p class="muted" data-i18n="subtitle">Describe a problem in your own words — Triage classifies it, suggests a fix and escalates only when needed.</p>
+  </div>
+  <nav class="tabs" id="tabs" aria-label="Views">
+    <button type="button" data-view="chat" class="on" data-i18n="tab.chat">Get help</button>
+    <button type="button" data-view="queue"><span data-i18n="tab.queue">Technician queue</span> <span class="count" id="openCount">0</span></button>
+    <button type="button" data-view="kb" data-i18n="tab.kb">Knowledge base</button>
+    <button type="button" data-view="stats" data-i18n="tab.stats">Insights</button>
+  </nav>
+</div>
+
+<main>
+  <!-- Chat -->
+  <section class="view on" id="view-chat">
+    <div class="chat-layout">
+      <div class="panel chat" id="chatPanel">
+        <div class="chat-head">
+          <span class="bot-av">T</span>
+          <div><b data-i18n="bot">Triage assistant</b><br><small class="muted" data-i18n="botSub">Usually answers instantly</small></div>
+          <label class="who"><span data-i18n="you">Your name</span><input id="who" maxlength="40" autocomplete="name"></label>
+        </div>
+        <div class="msgs" id="msgs" aria-live="polite"></div>
+        <div class="quick" id="quick"></div>
+        <div class="composer">
+          <textarea id="input" rows="1" maxlength="400" data-i18n-ph="placeholder" placeholder="Describe your problem…"></textarea>
+          <button type="button" class="btn" id="send" data-i18n="send">Send</button>
+        </div>
+      </div>
+      <aside class="panel how" id="howPanel">
+        <h3 data-i18n="how.title">How Triage decides</h3>
+        <ol class="steps">
+          <li><b data-i18n="how.1">Understand</b><span data-i18n="how.1p">Keywords in English and Spanish map your message to a category.</span></li>
+          <li><b data-i18n="how.2">Prioritize</b><span data-i18n="how.2p">Words about urgency, impact and security raise the priority.</span></li>
+          <li><b data-i18n="how.3">Self‑service</b><span data-i18n="how.3p">Common issues get guided steps from the knowledge base.</span></li>
+          <li><b data-i18n="how.4">Escalate</b><span data-i18n="how.4p">If it is still broken, a ticket with a response deadline goes to a technician.</span></li>
+        </ol>
+        <div class="sla">
+          <h4 data-i18n="sla.title">Response targets</h4>
+          <div class="li"><span class="pill err plain">P1</span><small data-i18n="sla.p1">Critical · 1 hour</small></div>
+          <div class="li"><span class="pill warn plain">P2</span><small data-i18n="sla.p2">High · 4 hours</small></div>
+          <div class="li"><span class="pill acc plain">P3</span><small data-i18n="sla.p3">Normal · 1 business day</small></div>
+          <div class="li"><span class="pill plain">P4</span><small data-i18n="sla.p4">Low · 3 business days</small></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Queue -->
+  <section class="view" id="view-queue">
+    <div class="panel">
+      <div class="row-between" id="queueBar">
+        <div class="chips" id="statusChips"></div>
+        <input class="search" id="qq" type="search" maxlength="60" data-i18n-ph="q.search" placeholder="Search tickets">
+      </div>
+      <div class="table-wrap">
+        <table class="data">
+          <thead><tr>
+            <th data-i18n="c.ticket">Ticket</th><th data-i18n="c.cat">Category</th><th data-i18n="c.prio">Priority</th>
+            <th data-i18n="c.req">Requester</th><th data-i18n="c.sla">Respond by</th><th data-i18n="c.status">Status</th>
+          </tr></thead>
+          <tbody id="tRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- KB -->
+  <section class="view" id="view-kb">
+    <div class="row-between">
+      <input class="search" id="kq" type="search" maxlength="60" data-i18n-ph="kb.search" placeholder="Search articles">
+      <span class="muted small" data-i18n="kb.hint">These are the guides the assistant suggests.</span>
+    </div>
+    <div class="kb" id="kbGrid"></div>
+  </section>
+
+  <!-- Stats -->
+  <section class="view" id="view-stats">
+    <div class="kpis" id="kpis"></div>
+    <div class="grid-2">
+      <div class="panel"><h3 data-i18n="s.byCat">Tickets by category</h3><div class="bars" id="byCat"></div></div>
+      <div class="panel"><h3 data-i18n="s.byPrio">Open tickets by priority</h3><div class="bars" id="byPrio"></div></div>
+    </div>
+  </section>
+</main>
+
+<!-- Ticket drawer -->
+<div class="backdrop" id="backdrop" hidden></div>
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="drawer-head">
+    <div>
+      <p class="muted small mono" id="dId"></p>
+      <h2 id="dSubj"></h2>
+      <div class="row" id="dPills"></div>
+    </div>
+    <button type="button" class="x" id="dClose" aria-label="Close">×</button>
+  </div>
+  <div class="drawer-body">
+    <dl class="kv" id="dKv"></dl>
+    <div class="why" id="dWhy"></div>
+    <h4 data-i18n="d.conv">Conversation</h4>
+    <div class="thread" id="dThread"></div>
+    <label class="field mt"><span data-i18n="d.reply">Reply to the requester</span><textarea id="dReply" maxlength="400"></textarea></label>
+  </div>
+  <div class="drawer-foot" id="dActions"></div>
+</aside>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="../assets/demo-kit.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
